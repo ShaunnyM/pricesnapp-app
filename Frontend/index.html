@@ -35,7 +35,7 @@
 }
 .condition-tab:hover { color: #10b981; }
 .condition-tab.active { color: #10b981; border-bottom-color: #10b981; }
-.condition-tab .tab-count {
+.condition-tab.tab-count {
     background: #f3f4f6;
     color: #6b7280;
     font-size: 0.75rem;
@@ -43,7 +43,7 @@
     border-radius: 9999px;
     margin-left: 0.375rem;
 }
-.condition-tab.active .tab-count { background: #d1fae5; color: #059669; }
+.condition-tab.active.tab-count { background: #d1fae5; color: #059669; }
       
 .hot-deals-wrapper {
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
@@ -51,7 +51,7 @@
     border-radius: 16px;
     padding: 1.25rem;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    box-shadow: 0 4px 12px rgba(239, 68, 0.15);
 }
       
 .trending-wrapper {
@@ -338,14 +338,14 @@
         }
 
         function toggleFavourites() {
-            showingFavourites = !showingFavourites;
+            showingFavourites =!showingFavourites;
             showingHotDeals = showingTrending = showingWatchlist = false;
             resetConditionTab();
             loadProducts();
         }
 
         function toggleWatchlist() {
-            showingWatchlist = !showingWatchlist;
+            showingWatchlist =!showingWatchlist;
             showingHotDeals = showingTrending = showingFavourites = false;
             resetConditionTab();
             loadProducts();
@@ -365,7 +365,7 @@
                 localStorage.setItem('favourites', JSON.stringify(favourites));
                 updateBadges();
                 renderProducts();
-                if (product && !watchlist.includes(id)) {
+                if (product &&!watchlist.includes(id)) {
                     showWatchlistPrompt(product);
                 }
             }
@@ -391,7 +391,7 @@
         }
 
         function confirmWatchlistAdd() {
-            if (pendingWatchlistId && !watchlist.includes(pendingWatchlistId)) {
+            if (pendingWatchlistId &&!watchlist.includes(pendingWatchlistId)) {
                 watchlist.push(pendingWatchlistId);
                 localStorage.setItem('watchlist', JSON.stringify(watchlist));
                 updateBadges();
@@ -418,7 +418,7 @@
         }
 
         function addToRecentlyViewed(productId) {
-            recentlyViewedIds = recentlyViewedIds.filter(id => id !== productId);
+            recentlyViewedIds = recentlyViewedIds.filter(id => id!== productId);
             recentlyViewedIds.unshift(productId);
             recentlyViewedIds = recentlyViewedIds.slice(0, 10);
             localStorage.setItem('recentlyViewedIds', JSON.stringify(recentlyViewedIds));
@@ -438,7 +438,7 @@
             container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
             
             try {
-                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending') ? 'All' : currentCategory}`;
+                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending')? 'All' : currentCategory}`;
                 if (currentCategory === 'HotDeals') url += '&hotDeals=true';
                 if (currentCategory === 'Trending') url += '&trending=true';
                 
@@ -527,8 +527,8 @@
                 if (p.prices && p.prices.length > 0) {
                     p.prices.forEach(price => {
                         const cond = price.condition || 'new';
-                        // FIXED: Push to correct condition array
-                        groupedProducts[p.name].conditionGroups.push(price);
+                        // FIX 1: Push to correct condition array
+                        groupedProducts[p.name].conditionGroups[cond].push(price);
                     });
                 } else {
                     const priceObj = {
@@ -548,12 +548,12 @@
             });
 
             Object.values(groupedProducts).forEach(g => {
-                // FIXED: Sort each condition array correctly
+                // FIX 2: Sort each condition array correctly
                 Object.keys(g.conditionGroups).forEach(cond => {
-                    g.conditionGroups.sort((a, b) => a.price - b.price);
+                    g.conditionGroups[cond].sort((a, b) => a.price - b.price);
                 });
                 
-                // CARD SHOWS ONLY NEW PRICES FROM ALL STORES
+                // CARD SHOWS ALL NEW PRICES FROM ALL STORES
                 const newPrices = g.conditionGroups.new.sort((a,b) => a.price - b.price);
                 g.prices = newPrices.length > 0? newPrices : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price);
             });
@@ -607,10 +607,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-        .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-        .filter(p => p)
-        .map(p => groupedProducts[p.name])
-        .filter(p => p);
+       .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+       .filter(p => p)
+       .map(p => groupedProducts[p.name])
+       .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -694,7 +694,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-                ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+               ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -748,7 +748,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-    ? allPrices 
+   ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
