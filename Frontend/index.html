@@ -527,7 +527,8 @@
                 if (p.prices && p.prices.length > 0) {
                     p.prices.forEach(price => {
                         const cond = price.condition || 'new';
-                        groupedProducts[p.name].conditionGroups[cond].push(price);
+                        // FIXED: Push to correct condition array
+                        groupedProducts[p.name].conditionGroups.push(price);
                     });
                 } else {
                     const priceObj = {
@@ -547,14 +548,13 @@
             });
 
             Object.values(groupedProducts).forEach(g => {
-                // FIXED: Sort each condition group correctly
+                // FIXED: Sort each condition array correctly
                 Object.keys(g.conditionGroups).forEach(cond => {
-                    g.conditionGroups[cond].sort((a, b) => a.price - b.price);
+                    g.conditionGroups.sort((a, b) => a.price - b.price);
                 });
                 
-                // MERGED FIX: Card only shows NEW condition prices from all stores
+                // CARD SHOWS ONLY NEW PRICES FROM ALL STORES
                 const newPrices = g.conditionGroups.new.sort((a,b) => a.price - b.price);
-                // Fallback to all prices if no 'new' exists
                 g.prices = newPrices.length > 0? newPrices : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price);
             });
 
@@ -607,10 +607,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-          .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-          .filter(p => p)
-          .map(p => groupedProducts[p.name])
-          .filter(p => p);
+        .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+        .filter(p => p)
+        .map(p => groupedProducts[p.name])
+        .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -694,7 +694,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-                  ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -748,7 +748,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-      ? allPrices 
+    ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
