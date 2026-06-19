@@ -553,24 +553,9 @@
                     g.conditionGroups[cond].sort((a, b) => a.price - b.price);
                 });
                 
-                const newPrices = g.conditionGroups.new.length > 0 
-             ? g.conditionGroups.new.slice(0, 3) 
-                    : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3);
-                
-                g.prices = newPrices;
-                
-                while (g.prices.length < 3) {
-                    g.prices.push({
-                        store: 'More stores soon',
-                        price: '—',
-                        storeStatus: 'gray',
-                        url: '#',
-                        id: -1,
-                        delivery: '—',
-                        stock: '—',
-                        condition: 'new'
-                    });
-                }
+                // MERGED: Show ALL prices sorted by price, not just top 3 new
+                const allPrices = Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price);
+                g.prices = allPrices;
             });
 
             const categories = ['Tech', 'Gaming', 'Appliances', 'Bedroom', 'Living Room', 'Kids', 'Garden'];
@@ -622,10 +607,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-             .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-             .filter(p => p)
-             .map(p => groupedProducts[p.name])
-             .filter(p => p);
+            .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+            .filter(p => p)
+            .map(p => groupedProducts[p.name])
+            .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -700,18 +685,25 @@
 
         function productCard(p) {
             const bestPrice = p.prices[0];
-            const totalOptions = Object.values(p.conditionGroups).flat().length;
-            const hasRefurb = p.conditionGroups.refurbished.length > 0;
-            const hasAuction = p.conditionGroups.auction.length > 0;
-            const hasUsed = p.conditionGroups.used.length > 0;
+            const totalOptions = p.prices.length;
+            
+            const conditionBadge = (cond) => {
+                const colors = {
+                    'new': 'bg-green-100 text-green-700',
+                    'used': 'bg-purple-100 text-purple-700',
+                    'refurbished': 'bg-blue-100 text-blue-700',
+                    'auction': 'bg-orange-100 text-orange-700'
+                };
+                return `<span class="text-[10px] px-1.5 py-0.5 rounded ${colors[cond] || 'bg-gray-100 text-gray-700'}">${cond}</span>`;
+            };
             
             return `
-                <div class="swipe-item bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all min-h- flex flex-col">
+                <div class="swipe-item bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col">
                     <div class="relative">
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-                     ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                    ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -723,19 +715,19 @@
                         <h3 class="font-semibold text-gray-900 mb-2 text-sm leading-tight">${p.name}</h3>
                         
                         <div class="mb-3 flex-1">
-                            <div class="text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">TOP 3 NEW PRICES</div>
-                            ${p.prices.map((price, idx) => `
-                                <div class="flex items-center justify-between py-1 ${idx < 2? 'border-b border-gray-100' : ''}">
-                                    <div class="flex items-center">
-                                        <span class="store-dot dot-${price.storeStatus}"></span>
-                                        <span class="text-xs text-gray-700 font-medium">${price.store.replace('eBay - New', 'eBay')}</span>
+                            <div class="text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">ALL ${totalOptions} PRICES</div>
+                            <div class="max-h-32 overflow-y-auto pr-1">
+                                ${p.prices.map((price, idx) => `
+                                    <div class="flex items-center justify-between py-1 ${idx < p.prices.length - 1? 'border-b border-gray-100' : ''}">
+                                        <div class="flex items-center gap-1 flex-1 min-w-0">
+                                            <span class="store-dot dot-${price.storeStatus}"></span>
+                                            <span class="text-xs text-gray-700 font-medium truncate">${price.store.replace('eBay - ', 'eBay ')}</span>
+                                            ${conditionBadge(price.condition || 'new')}
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-900 ml-2">${price.price === '—'? '—' : '£' + price.price}</span>
                                     </div>
-                                    <span class="text-sm font-bold text-gray-900">${price.price === '—'? '—' : '£' + price.price}</span>
-                                </div>
-                            `).join('')}
-                            ${totalOptions > p.prices.length? `<div class="text-xs text-green-600 font-medium mt-1">
-                                ${hasRefurb? 'Refurbished' : ''} ${hasAuction? '• Auctions' : ''} ${hasUsed? '• Used' : ''} available
-                            </div>` : ''}
+                                `).join('')}
+                            </div>
                         </div>
                         
                         <button onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')" class="block w-full py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-semibold text-center mt-auto">
@@ -763,7 +755,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-         ? allPrices 
+        ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
