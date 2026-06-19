@@ -290,9 +290,8 @@
             ]
         };
 
-        // FIX 1: Normalize product names so "Apple iPhone" and "iPhone" merge
         function normalizeName(name) {
-            return name.replace(/^Apple /i, '').replace(/^(iPhone|iPad|MacBook)\s/i, '$1 ').trim();
+            return name.replace(/^Apple /i, '').replace(/\s+/g, ' ').trim();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -511,7 +510,6 @@
 
             groupedProducts = {};
             products.forEach(p => {
-                // FIX 1: Normalize name so "Apple iPhone" and "iPhone" merge
                 const normName = normalizeName(p.name);
                 if (!groupedProducts[normName]) {
                     groupedProducts[normName] = {
@@ -534,7 +532,7 @@
                 if (p.prices && p.prices.length > 0) {
                     p.prices.forEach(price => {
                         const cond = price.condition || 'new';
-                        // FIX 2: Push to the CORRECT condition array, not the object
+                        // FIX 1: Push to the correct condition array
                         groupedProducts[normName].conditionGroups[cond].push(price);
                     });
                 } else {
@@ -555,7 +553,7 @@
             });
 
             Object.values(groupedProducts).forEach(g => {
-                // FIX 3: Sort EACH condition array, not the object
+                // FIX 2: Sort EACH condition array, not the object
                 Object.keys(g.conditionGroups).forEach(cond => {
                     g.conditionGroups[cond].sort((a, b) => a.price - b.price);
                 });
@@ -614,10 +612,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-       .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-       .filter(p => p)
-       .map(p => groupedProducts[normalizeName(p.name)])
-       .filter(p => p);
+    .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+    .filter(p => p)
+    .map(p => groupedProducts[normalizeName(p.name)])
+    .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -701,7 +699,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-              ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+           ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -755,7 +753,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-  ? allPrices 
+? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
