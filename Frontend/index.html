@@ -51,7 +51,7 @@
     border-radius: 16px;
     padding: 1.25rem;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(239, 68, 0.15);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
       
 .trending-wrapper {
@@ -472,11 +472,6 @@
                 console.error(err);
             }
         }
-
-        function normalizeProductName(name) {
-            // Merge "iPhone 15 Pro" and "iPhone 15 Pro Max" into same card
-            return name.replace(/iPhone 15 Pro( Max)? 256GB/i, 'iPhone 15 Pro 256GB');
-        }
         function renderProducts() {
             const container = document.getElementById('productsContainer');
             const info = document.getElementById('resultsInfo');
@@ -511,11 +506,9 @@
 
             groupedProducts = {};
             products.forEach(p => {
-                const groupKey = normalizeProductName(p.name);
-                
-                if (!groupedProducts[groupKey]) {
-                    groupedProducts[groupKey] = {
-                        name: groupKey,
+                if (!groupedProducts[p.name]) {
+                    groupedProducts[p.name] = {
+                        name: p.name,
                         image: p.image,
                         category: p.category,
                         hotDeal: p.hotDeal,
@@ -533,9 +526,9 @@
                 
                 if (p.prices && p.prices.length > 0) {
                     p.prices.forEach(price => {
-                        groupedProducts[groupKey].prices.push(price);
+                        groupedProducts[p.name].prices.push(price);
                         const cond = price.condition || 'new';
-                        groupedProducts[groupKey].conditionGroups.push(price);
+                        groupedProducts[p.name].conditionGroups[cond].push(price);
                     });
                 } else {
                     const priceObj = {
@@ -550,18 +543,18 @@
                         btnClass: p.btnClass || '',
                         condition: p.condition || 'new'
                     };
-                    groupedProducts[groupKey].prices.push(priceObj);
-                    groupedProducts[groupKey].conditionGroups[priceObj.condition].push(priceObj);
+                    groupedProducts[p.name].prices.push(priceObj);
+                    groupedProducts[p.name].conditionGroups[priceObj.condition].push(priceObj);
                 }
             });
 
             Object.values(groupedProducts).forEach(g => {
                 Object.keys(g.conditionGroups).forEach(cond => {
-                    g.conditionGroups.sort((a, b) => a.price - b.price);
+                    g.conditionGroups[cond].sort((a, b) => a.price - b.price);
                 });
                 
                 const newPrices = g.conditionGroups.new.length > 0 
-           ? g.conditionGroups.new.slice(0, 3) 
+             ? g.conditionGroups.new.slice(0, 3) 
                     : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3);
                 
                 g.prices = newPrices;
@@ -629,10 +622,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-           .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-           .filter(p => p)
-           .map(p => groupedProducts[normalizeProductName(p.name)])
-           .filter(p => p);
+             .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+             .filter(p => p)
+             .map(p => groupedProducts[p.name])
+             .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -718,7 +711,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-                   ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                     ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -770,7 +763,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-       ? allPrices 
+         ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
