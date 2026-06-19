@@ -35,7 +35,7 @@
 }
 .condition-tab:hover { color: #10b981; }
 .condition-tab.active { color: #10b981; border-bottom-color: #10b981; }
-.condition-tab.tab-count {
+.condition-tab .tab-count {
     background: #f3f4f6;
     color: #6b7280;
     font-size: 0.75rem;
@@ -43,7 +43,7 @@
     border-radius: 9999px;
     margin-left: 0.375rem;
 }
-.condition-tab.active.tab-count { background: #d1fae5; color: #059669; }
+.condition-tab.active .tab-count { background: #d1fae5; color: #059669; }
       
 .hot-deals-wrapper {
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
@@ -290,6 +290,11 @@
             ]
         };
 
+        // FIX 1: Normalize product names so "Apple iPhone" and "iPhone" merge
+        function normalizeName(name) {
+            return name.replace(/^Apple /i, '').replace(/^(iPhone|iPad|MacBook)\s/i, '$1 ').trim();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             updateBadges();
             loadProducts();
@@ -506,9 +511,11 @@
 
             groupedProducts = {};
             products.forEach(p => {
-                if (!groupedProducts[p.name]) {
-                    groupedProducts[p.name] = {
-                        name: p.name,
+                // FIX 1: Normalize name so "Apple iPhone" and "iPhone" merge
+                const normName = normalizeName(p.name);
+                if (!groupedProducts[normName]) {
+                    groupedProducts[normName] = {
+                        name: normName,
                         image: p.image,
                         category: p.category,
                         hotDeal: p.hotDeal,
@@ -527,8 +534,8 @@
                 if (p.prices && p.prices.length > 0) {
                     p.prices.forEach(price => {
                         const cond = price.condition || 'new';
-                        // FIX 1: Push to correct condition array
-                        groupedProducts[p.name].conditionGroups[cond].push(price);
+                        // FIX 2: Push to the CORRECT condition array, not the object
+                        groupedProducts[normName].conditionGroups[cond].push(price);
                     });
                 } else {
                     const priceObj = {
@@ -543,18 +550,18 @@
                         btnClass: p.btnClass || '',
                         condition: p.condition || 'new'
                     };
-                    groupedProducts[p.name].conditionGroups[priceObj.condition].push(priceObj);
+                    groupedProducts[normName].conditionGroups[priceObj.condition].push(priceObj);
                 }
             });
 
             Object.values(groupedProducts).forEach(g => {
-                // FIX 2: Sort each condition array correctly
+                // FIX 3: Sort EACH condition array, not the object
                 Object.keys(g.conditionGroups).forEach(cond => {
                     g.conditionGroups[cond].sort((a, b) => a.price - b.price);
                 });
                 
                 // CARD SHOWS ALL NEW PRICES FROM ALL STORES
-                const newPrices = g.conditionGroups.new.sort((a,b) => a.price - b.price);
+                const newPrices = g.conditionGroups.new;
                 g.prices = newPrices.length > 0? newPrices : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price);
             });
 
@@ -609,7 +616,7 @@
                 const recentlyViewedProducts = recentlyViewedIds
        .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
        .filter(p => p)
-       .map(p => groupedProducts[p.name])
+       .map(p => groupedProducts[normalizeName(p.name)])
        .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
@@ -694,7 +701,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-               ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+              ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -748,7 +755,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-   ? allPrices 
+  ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
