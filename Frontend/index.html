@@ -184,7 +184,6 @@
                         <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                     </button>
                     
-                    <!-- Auth Section -->
                     <div id="authSection" class="flex items-center gap-2 ml-2 pl-3 border-l border-gray-200">
                         <div id="loggedOutBtns" class="flex items-center gap-2">
                             <button onclick="openAuthModal('login')" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-green-600 transition">
@@ -195,7 +194,7 @@
                             </button>
                         </div>
                         <div id="loggedInBtns" class="hidden items-center gap-2">
-                            <span id="userEmail" class="text-sm text-gray-700 font-medium max-w-[120px] truncate"></span>
+                            <span id="userEmail" class="text-sm text-gray-700 font-medium max-w- truncate"></span>
                             <button onclick="handleSignOut()" class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-red-600 transition">
                                 <i class="fa-solid fa-right-from-bracket"></i>
                             </button>
@@ -205,7 +204,7 @@
             </div>
         </div>
     </header>
-    <section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
+        <section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
                 Find the <span class="text-green-600">cheapest price</span> anywhere
@@ -261,7 +260,6 @@
         </div>
     </div>
 
-    <!-- Auth Modal -->
     <div id="authModal" class="modal-backdrop hidden" onclick="closeAuthModal(event)">
         <div class="modal-content max-w-md" onclick="event.stopPropagation()">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
@@ -295,11 +293,11 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // SUPABASE CONFIG - REPLACE THESE
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        // SUPABASE CONFIG - Your anon key added
+        const SUPABASE_URL = 'https://ecbewbncnzwvtkfbzlqm.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjYmV3Ym5jbnp3dnRrZmJ6bHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4Nzg3MDgsImV4cCI6MjA5NzQ1NDcwOH0.z_tweVDx972OcfKZ_Uk2CF6shb4PJ7KZqG1dEDyfQuQ';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentCategory = 'All';
@@ -423,20 +421,17 @@
                 toggleBtn.textContent = 'Sign Up';
             } else {
                 title.textContent = 'Sign Up';
-                subtitle.textContent = 'Start saving on every purchase';
-                submitBtn.textContent = 'Create Account';
+                subtitle.textContent = 'Create your PriceSnap account';
+                submitBtn.textContent = 'Sign Up';
                 toggleText.textContent = 'Already have an account? ';
                 toggleBtn.textContent = 'Log In';
             }
-            
             modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
         }
 
-        function closeAuthModal(event) {
-            if (!event || event.target.id === 'authModal') {
+        function closeAuthModal(e) {
+            if (!e || e.target.id === 'authModal') {
                 document.getElementById('authModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
             }
         }
 
@@ -444,41 +439,40 @@
             openAuthModal(authMode === 'login'? 'signup' : 'login');
         }
 
-        async function handleAuth(event) {
-            event.preventDefault();
+        async function handleAuth(e) {
+            e.preventDefault();
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
             const errorDiv = document.getElementById('authError');
             const submitBtn = document.getElementById('authSubmitBtn');
             
+            errorDiv.classList.add('hidden');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Loading...';
-            errorDiv.classList.add('hidden');
             
             try {
                 let result;
-                if (authMode === 'signup') {
-                    result = await supabase.auth.signUp({ email, password });
-                    if (!result.error) {
-                        errorDiv.textContent = 'Check your email to confirm your account!';
-                        errorDiv.classList.remove('hidden', 'text-red-600', 'bg-red-50');
-                        errorDiv.classList.add('text-green-600', 'bg-green-50');
-                        setTimeout(closeAuthModal, 3000);
-                        return;
-                    }
-                } else {
+                if (authMode === 'login') {
                     result = await supabase.auth.signInWithPassword({ email, password });
-                    if (!result.error) closeAuthModal();
+                } else {
+                    result = await supabase.auth.signUp({ email, password });
                 }
                 
                 if (result.error) throw result.error;
                 
+                if (authMode === 'signup' &&!result.data.session) {
+                    errorDiv.textContent = 'Check your email to confirm your account!';
+                    errorDiv.classList.remove('hidden', 'text-red-600', 'bg-red-50');
+                    errorDiv.classList.add('text-green-600', 'bg-green-50');
+                } else {
+                    closeAuthModal();
+                }
             } catch (error) {
                 errorDiv.textContent = error.message;
                 errorDiv.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = authMode === 'login'? 'Log In' : 'Create Account';
+                submitBtn.textContent = authMode === 'login'? 'Log In' : 'Sign Up';
             }
         }
 
@@ -486,556 +480,410 @@
             await supabase.auth.signOut();
         }
 
-        function setCategory(cat) {
-            currentCategory = cat;
-            showingHotDeals = cat === 'HotDeals';
-            showingTrending = cat === 'Trending';
-            showingFavourites = showingWatchlist = false;
-            resetConditionTab();
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                if (btn.dataset.cat === cat) {
-                    btn.className = 'category-btn px-3 py-1 rounded-full border bg-green-600 text-white text-xs font-medium';
-                } else {
-                    btn.className = 'category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium';
-                }
-            });
-            loadProducts();
-        }
-
-        function resetHome(e) {
-            e.preventDefault();
-            currentSearch = '';
-            currentCategory = 'All';
-            showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
-            document.getElementById('searchInput').value = '';
-            resetConditionTab();
-            setCategory('All');
-        }
-
-        function toggleFavourites() {
-            showingFavourites =!showingFavourites;
-            showingHotDeals = showingTrending = showingWatchlist = false;
-            resetConditionTab();
-            loadProducts();
-        }
-
-        function toggleWatchlist() {
-            showingWatchlist =!showingWatchlist;
-            showingHotDeals = showingTrending = showingFavourites = false;
-            resetConditionTab();
-            loadProducts();
-        }
-
-        function toggleFavourite(id) {
-            const idx = favourites.indexOf(id);
-            const product = allProducts.find(p => p.id === id);
-            
-            if (idx > -1) {
-                favourites.splice(idx, 1);
-                localStorage.setItem('favourites', JSON.stringify(favourites));
-                updateBadges();
-                renderProducts();
-            } else {
-                favourites.push(id);
-                localStorage.setItem('favourites', JSON.stringify(favourites));
-                updateBadges();
-                renderProducts();
-                if (product &&!watchlist.includes(id)) {
-                    showWatchlistPrompt(product);
-                }
-            }
-        }
-
-        function showWatchlistPrompt(product) {
-            pendingWatchlistId = product.id;
-            const modalHtml = `
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Add to Watchlist?</h3>
-                <p class="text-gray-600 mb-4 text-sm">Get notified about <span class="font-semibold">${product.name}</span></p>
-                <div class="flex gap-2">
-                    <button onclick="confirmWatchlistAdd()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm">
-                        Yes, add it
-                    </button>
-                    <button onclick="closeWatchlistModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold text-sm">
-                        No thanks
-                    </button>
-                </div>
-            `;
-            document.getElementById('watchlistModalContent').innerHTML = modalHtml;
-            document.getElementById('watchlistModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function confirmWatchlistAdd() {
-            if (pendingWatchlistId &&!watchlist.includes(pendingWatchlistId)) {
-                watchlist.push(pendingWatchlistId);
-                localStorage.setItem('watchlist', JSON.stringify(watchlist));
-                updateBadges();
-                renderProducts();
-            }
-            closeWatchlistModal();
-        }
-
-        function closeWatchlistModal(event) {
-            if (!event || event.target.id === 'watchlistModal') {
-                document.getElementById('watchlistModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                pendingWatchlistId = null;
-            }
-        }
-
-        function toggleWatch(id) {
-            const idx = watchlist.indexOf(id);
-            if (idx > -1) watchlist.splice(idx, 1);
-            else watchlist.push(id);
-            localStorage.setItem('watchlist', JSON.stringify(watchlist));
-            updateBadges();
-            renderProducts();
-        }
-
-        function addToRecentlyViewed(productId) {
-            recentlyViewedIds = recentlyViewedIds.filter(id => id!== productId);
-            recentlyViewedIds.unshift(productId);
-            recentlyViewedIds = recentlyViewedIds.slice(0, 10);
-            localStorage.setItem('recentlyViewedIds', JSON.stringify(recentlyViewedIds));
-        }
-
-        function updateBadges() {
-            document.getElementById('favBadge').textContent = favourites.length;
-            document.getElementById('favBadge').classList.toggle('hidden', favourites.length === 0);
-            document.getElementById('watchBadge').textContent = watchlist.length;
-            document.getElementById('watchBadge').classList.toggle('hidden', watchlist.length === 0);
-        }
-
         async function loadProducts() {
-            const container = document.getElementById('productsContainer');
             const info = document.getElementById('resultsInfo');
-            
-            container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
+            info.textContent = 'Loading deals...';
             
             try {
-                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending')? 'All' : currentCategory}`;
-                if (currentCategory === 'HotDeals') url += '&hotDeals=true';
-                if (currentCategory === 'Trending') url += '&trending=true';
+                let url = '/api/products?';
+                if (currentSearch) url += `search=${encodeURIComponent(currentSearch)}&`;
+                if (currentCategory!== 'All' && currentCategory!== 'HotDeals' && currentCategory!== 'Trending') {
+                    url += `category=${encodeURIComponent(currentCategory)}&`;
+                }
                 
                 const res = await fetch(url);
                 allProducts = await res.json();
-
-                allProducts = allProducts.map(p => {
-                    if (EBAY_AFFILIATE_LINKS[p.name]) {
-                        const affiliatePrices = EBAY_AFFILIATE_LINKS[p.name].map((aff, idx) => ({
-                            id: 999000 + idx,
-                            store: aff.store,
-                            price: p.price,
-                            oldPrice: p.oldPrice,
-                            storeStatus: aff.storeStatus,
-                            url: aff.url,
-                            delivery: aff.delivery,
-                            stock: aff.stock,
-                            btnClass: aff.btnClass,
-                            condition: aff.condition
-                        }));
-                        return {...p, prices: affiliatePrices };
-                    }
-                    return p;
-                });
-
-                renderProducts();
                 
+                groupedProducts = {};
+                allProducts.forEach(p => {
+                    const key = normalizeName(p.name);
+                    if (!groupedProducts[key]) groupedProducts[key] = [];
+                    groupedProducts[key].push(p);
+                });
+                
+                renderProducts();
+                updateBadges();
             } catch (err) {
-                info.textContent = 'Error loading products';
-                container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>';
+                info.textContent = 'Error loading products. Check your API is running.';
                 console.error(err);
             }
         }
+
         function renderProducts() {
             const container = document.getElementById('productsContainer');
             const info = document.getElementById('resultsInfo');
-            let products = [...allProducts];
-
+            container.innerHTML = '';
+            
+            let productsToShow = Object.values(groupedProducts);
+            
             if (showingFavourites) {
-                products = products.filter(p => favourites.includes(p.id));
-                info.textContent = `Your Favourites (${products.length})`;
+                productsToShow = productsToShow.filter(g => favourites.includes(g[0].id));
+                info.textContent = `${productsToShow.length} favourite products`;
             } else if (showingWatchlist) {
-                products = products.filter(p => watchlist.includes(p.id));
-                info.textContent = `Your Watchlist (${products.length})`;
-            } else if (currentCategory === 'HotDeals') {
-                info.textContent = `Hot Deals (${products.length}) - Biggest Price Drops`;
-            } else if (currentCategory === 'Trending') {
-                info.textContent = `Trending Now (${products.length}) - Most Viewed Today`;
+                productsToShow = productsToShow.filter(g => watchlist.some(w => g.some(p => p.id === w.id)));
+                info.textContent = `${productsToShow.length} watched products`;
+            } else if (showingHotDeals) {
+                productsToShow = productsToShow.filter(g => g.some(p => p.isHotDeal));
+                info.textContent = `${productsToShow.length} hot deals`;
+            } else if (showingTrending) {
+                productsToShow = productsToShow.filter(g => g.some(p => p.isTrending));
+                info.textContent = `${productsToShow.length} trending products`;
             } else {
-                info.textContent = `Found ${products.length} deals ${currentSearch? `for "${currentSearch}"` : ''} in ${currentCategory}`;
+                info.textContent = `${productsToShow.length} products found`;
             }
             
-            if (products.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 text-gray-500">No products found.</div>';
+            if (productsToShow.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No products found</p>';
                 return;
             }
-
-            const hotCount = allProducts.filter(p => p.hotDeal).length;
-            document.getElementById('hotDealsBadge').textContent = hotCount;
-            document.getElementById('hotDealsBadge').classList.toggle('hidden', hotCount === 0);
-
-            const trendingCount = allProducts.filter(p => p.trending).length;
-            document.getElementById('trendingBadge').textContent = trendingCount;
-            document.getElementById('trendingBadge').classList.toggle('hidden', trendingCount === 0);
-
-            groupedProducts = {};
-            products.forEach(p => {
-                const normName = normalizeName(p.name);
-                if (!groupedProducts[normName]) {
-                    groupedProducts[normName] = {
-                        name: normName,
-                        image: p.image,
-                        category: p.category,
-                        hotDeal: p.hotDeal,
-                        trending: p.trending,
-                        description: p.description || 'No description available',
-                        prices: [],
-                        conditionGroups: {
-                            new: [],
-                            used: [],
-                            refurbished: [],
-                            auction: []
-                        }
-                    };
-                }
-                
-                if (p.prices && p.prices.length > 0) {
-                    p.prices.forEach(price => {
-                        const cond = price.condition || 'new';
-                        groupedProducts[normName].conditionGroups[cond].push(price);
-                    });
-                } else {
-                    const priceObj = {
-                        store: p.store,
-                        price: p.price,
-                        oldPrice: p.oldPrice,
-                        storeStatus: p.storeStatus,
-                        url: p.url,
-                        id: p.id,
-                        delivery: p.delivery || '2-3 days',
-                        stock: p.stock || 'In Stock',
-                        btnClass: p.btnClass || '',
-                        condition: p.condition || 'new'
-                    };
-                    groupedProducts[normName].conditionGroups[priceObj.condition].push(priceObj);
-                }
-            });
-
-            Object.values(groupedProducts).forEach(g => {
-                Object.keys(g.conditionGroups).forEach(cond => {
-                    g.conditionGroups[cond].sort((a, b) => a.price - b.price);
-                });
-                
-                const newPrices = g.conditionGroups.new;
-                g.prices = newPrices.length > 0? newPrices : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price);
-            });
-
-            const categories = ['Tech', 'Gaming', 'Appliances', 'Bedroom', 'Living Room', 'Kids', 'Garden'];
-            let html = '';
-
-            if (currentCategory === 'All' &&!showingFavourites &&!showingWatchlist &&!currentSearch) {
-                const hotDealsProducts = Object.values(groupedProducts).filter(p => p.hotDeal);
-                if (hotDealsProducts.length > 0) {
-                    const scrollProducts = [...hotDealsProducts,...hotDealsProducts];
-                    html += `
-                        <div class="hot-deals-wrapper">
-                            <div class="flex items-center justify-between mb-3">
-                                <h2 class="text-lg font-bold text-red-700 flex items-center gap-2">
-                                    <i class="fa-solid fa-fire"></i> HOT DEALS - LIMITED TIME
-                                </h2>
-                                <button onclick="setCategory('HotDeals')" class="text-sm text-red-600 hover:text-red-700 font-medium">
-                                    See all <i class="fa-solid fa-arrow-right text-xs"></i>
-                                </button>
-                            </div>
-                            <div class="overflow-hidden">
-                                <div class="hot-deals-scroll">
-                                    ${scrollProducts.map(p => productCard(p)).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                const trendingProducts = Object.values(groupedProducts).filter(p => p.trending);
-                if (trendingProducts.length > 0) {
-                    const scrollProducts = [...trendingProducts,...trendingProducts];
-                    html += `
-                        <div class="trending-wrapper">
-                            <div class="flex items-center justify-between mb-3">
-                                <h2 class="text-lg font-bold text-yellow-700 flex items-center gap-2">
-                                    <i class="fa-solid fa-arrow-trend-up"></i> TRENDING NOW
-                                </h2>
-                                <button onclick="setCategory('Trending')" class="text-sm text-yellow-600 hover:text-yellow-700 font-medium">
-                                    See all <i class="fa-solid fa-arrow-right text-xs"></i>
-                                </button>
-                            </div>
-                            <div class="overflow-hidden">
-                                <div class="trending-scroll">
-                                    ${scrollProducts.map(p => productCard(p)).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                const recentlyViewedProducts = recentlyViewedIds
-                   .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-                   .filter(p => p)
-                   .map(p => groupedProducts[normalizeName(p.name)])
-                   .filter(p => p);
-                
-                if (recentlyViewedProducts.length > 0) {
-                    html += `
-                        <div class="recently-viewed-wrapper">
-                            <div class="flex items-center justify-between mb-3">
-                                <h2 class="text-lg font-bold text-sky-700 flex items-center gap-2">
-                                    <i class="fa-solid fa-clock-rotate-left"></i> RECENTLY VIEWED
-                                </h2>
-                                <button onclick="clearRecentlyViewed()" class="text-sm text-sky-600 hover:text-sky-700 font-medium">
-                                    Clear <i class="fa-solid fa-trash text-xs"></i>
-                                </button>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <div class="recently-scroll">
-                                    ${recentlyViewedProducts.map(p => productCard(p)).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                categories.forEach(cat => {
-                    const catProducts = Object.values(groupedProducts).filter(p => p.category === cat);
-                    if (catProducts.length > 0) {
-                        const rowId = `row-${cat.replace(/\s+/g, '-')}`;
-                        html += `
-                            <div class="category-section">
-                                <div class="flex items-center justify-between mb-3">
-                                    <h2 class="text-base font-bold text-gray-900">${cat}</h2>
-                                    <button onclick="setCategory('${cat}')" class="text-sm text-green-600 hover:text-green-700 font-medium">
-                                        See all <i class="fa-solid fa-arrow-right text-xs"></i>
-                                    </button>
-                                </div>
-                                <div class="swipe-wrapper">
-                                    <button class="swipe-arrow left" onclick="scrollRow('${rowId}', -280)">
-                                        <i class="fa-solid fa-chevron-left"></i>
-                                    </button>
-                                    <div id="${rowId}" class="swipe-container">
-                                        ${catProducts.map(p => productCard(p)).join('')}
-                                    </div>
-                                    <button class="swipe-arrow right" onclick="scrollRow('${rowId}', 280)">
-                                        <i class="fa-solid fa-chevron-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-            } else {
-                const rowId = 'row-filtered';
-                html = `
-                    <div class="swipe-wrapper">
-                        <button class="swipe-arrow left" onclick="scrollRow('${rowId}', -280)">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <div id="${rowId}" class="swipe-container">
-                            ${Object.values(groupedProducts).map(p => productCard(p)).join('')}
-                        </div>
-                        <button class="swipe-arrow right" onclick="scrollRow('${rowId}', 280)">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-                    </div>
-                `;
-            }
             
-            container.innerHTML = html;
+            productsToShow.forEach(group => {
+                container.appendChild(createProductCard(group));
+            });
         }
+                function createProductCard(productGroup) {
+            const p = productGroup[0];
+            const lowestPrice = Math.min(...productGroup.map(x => parseFloat(x.price)));
+            const highestPrice = Math.max(...productGroup.map(x => parseFloat(x.price)));
+            const hasPriceRange = lowestPrice!== highestPrice;
+            const isFavourited = favourites.includes(p.id);
+            const isWatched = watchlist.some(w => productGroup.some(pg => pg.id === w.id));
 
-        function scrollRow(id, amount) {
-            document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' });
-        }
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg border p-4 mb-4 hover:shadow-md transition cursor-pointer';
+            card.onclick = () => openProductModal(productGroup);
 
-        function productCard(p) {
-            const bestPrice = p.prices[0];
-            const newCount = p.conditionGroups.new.length;
-            const otherCount = p.conditionGroups.used.length + p.conditionGroups.refurbished.length + p.conditionGroups.auction.length;
-            
-            return `
-                <div class="swipe-item bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col">
-                    <div class="relative">
-                        <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
-                        ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
-                        ${showingWatchlist 
-          ? `<button onclick="toggleWatch(${bestPrice.id})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
-                                <i class="fa-solid fa-xmark text-sm"></i>
-                               </button>`
-                            : `<button onclick="toggleFavourite(${bestPrice.id})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
-                                <i class="fa-${favourites.includes(bestPrice.id)? 'solid text-pink-500' : 'regular text-gray-400'} fa-heart text-sm"></i>
-                               </button>`
-                        }
-                    </div>
-                    <div class="p-3 flex-1 flex flex-col">
-                        <h3 class="font-semibold text-gray-900 mb-2 text-sm leading-tight">${p.name}</h3>
-                        
-                        <div class="mb-3 flex-1">
-                            <div class="text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">ALL ${newCount} NEW PRICES</div>
-                            <div class="max-h-32 overflow-y-auto pr-1">
-                                ${p.prices.map((price, idx) => `
-                                    <div class="flex items-center justify-between py-1 ${idx < p.prices.length - 1? 'border-b border-gray-100' : ''}">
-                                        <div class="flex items-center gap-1 flex-1 min-w-0">
-                                            <span class="store-dot dot-${price.storeStatus}"></span>
-                                            <span class="text-xs text-gray-700 font-medium truncate">${price.store.replace('eBay - New', 'eBay')}</span>
-                                        </div>
-                                        <span class="text-sm font-bold text-gray-900 ml-2">${price.price === '—'? '—' : '£' + price.price}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            ${otherCount > 0? `<div class="text-xs text-blue-600 font-medium mt-1">
-                                + ${otherCount} used/refurb/auction in modal
-                            </div>` : ''}
+            card.innerHTML = `
+                <div class="flex gap-4">
+                    <img src="${p.imageUrl || 'https://via.placeholder.com/120'}"
+                         alt="${p.name}"
+                         class="w-24 h-24 object-contain flex-shrink-0 rounded">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start gap-2 mb-1">
+                            <h3 class="font-semibold text-gray-900 text-sm line-clamp-2">${p.name}</h3>
+                            <button onclick="event.stopPropagation(); toggleFavourite(${p.id})"
+                                    class="text-xl ${isFavourited? 'text-pink-500' : 'text-gray-300 hover:text-pink-500'} transition">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
                         </div>
-                        
-                        <button onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')" class="block w-full py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-semibold text-center mt-auto">
-                            View Deal <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
-                        </button>
+                        <p class="text-xs text-gray-500 mb-2">${p.category || 'General'}</p>
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <span class="text-xl font-bold text-green-600">£${lowestPrice.toFixed(2)}</span>
+                            ${hasPriceRange? `<span class="text-sm text-gray-500">- £${highestPrice.toFixed(2)}</span>` : ''}
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${p.isHotDeal? '<span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-semibold rounded-full"><i class="fa-solid fa-fire mr-1"></i>Hot Deal</span>' : ''}
+                            ${p.isTrending? '<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full"><i class="fa-solid fa-arrow-trend-up mr-1"></i>Trending</span>' : ''}
+                            ${isWatched? '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full"><i class="fa-solid fa-eye mr-1"></i>Watching</span>' : ''}
+                            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">${productGroup.length} stores</span>
+                        </div>
                     </div>
                 </div>
             `;
+            return card;
         }
 
-        function switchConditionTab(productName, condition) {
+        function openProductModal(productGroup) {
+            const p = productGroup[0];
+            const modal = document.getElementById('productModal');
+            const content = document.getElementById('modalContent');
+
+            addToRecentlyViewed(p.id);
+
+            const pricesByCondition = {
+                new: productGroup.filter(x => x.condition === 'new'),
+                refurbished: productGroup.filter(x => x.condition === 'refurbished'),
+                used: productGroup.filter(x => x.condition === 'used'),
+                auction: productGroup.filter(x => x.condition === 'auction')
+            };
+
+            const allConditions = ['all', 'new', 'refurbished', 'used', 'auction'].filter(c =>
+                c === 'all' || pricesByCondition[c]?.length > 0
+            );
+
+            content.innerHTML = `
+                <div class="p-6">
+                    <div class="flex gap-6 mb-6">
+                        <img src="${p.imageUrl || 'https://via.placeholder.com/200'}"
+                             alt="${p.name}"
+                             class="w-32 h-32 object-contain flex-shrink-0 rounded-lg border">
+                        <div class="flex-1">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">${p.name}</h2>
+                            <p class="text-sm text-gray-600 mb-3">${p.description || ''}</p>
+                            <div class="flex gap-2">
+                                <button onclick="toggleFavourite(${p.id}); openProductModal(${JSON.stringify(productGroup).replace(/"/g, '&quot;')})"
+                                        class="px-4 py-2 border rounded-lg text-sm font-medium ${favourites.includes(p.id)? 'bg-pink-50 text-pink-600 border-pink-200' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">
+                                    <i class="fa-solid fa-heart mr-1"></i> ${favourites.includes(p.id)? 'Favourited' : 'Favourite'}
+                                </button>
+                                <button onclick="openWatchlistModal(${p.id})"
+                                        class="px-4 py-2 border rounded-lg text-sm font-medium ${watchlist.some(w => w.id === p.id)? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}">
+                                    <i class="fa-solid fa-eye mr-1"></i> ${watchlist.some(w => w.id === p.id)? 'Watching' : 'Watch Price'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="condition-tabs">
+                        ${allConditions.map(c => `
+                            <button class="condition-tab ${activeConditionTab === c? 'active' : ''}"
+                                    onclick="setConditionTab('${c}', ${JSON.stringify(productGroup).replace(/"/g, '&quot;')})">
+                                ${c === 'all'? 'All' : c.charAt(0).toUpperCase() + c.slice(1)}
+                                <span class="tab-count">${c === 'all'? productGroup.length : pricesByCondition[c].length}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div id="priceListContainer">
+                        ${renderPriceList(productGroup, activeConditionTab)}
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function setConditionTab(condition, productGroup) {
             activeConditionTab = condition;
-            openProductModal(productName);
+            const container = document.getElementById('priceListContainer');
+            container.innerHTML = renderPriceList(productGroup, condition);
+
+            document.querySelectorAll('.condition-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(condition)) {
+                    tab.classList.add('active');
+                }
+            });
         }
 
         function resetConditionTab() {
             activeConditionTab = 'all';
         }
 
-        function openProductModal(productName) {
-            const product = groupedProducts[productName];
-            if (!product) return;
+        function renderPriceList(productGroup, condition) {
+            let prices = productGroup;
+            if (condition!== 'all') {
+                prices = productGroup.filter(p => p.condition === condition);
+            }
 
-            addToRecentlyViewed(product.prices[0].id);
+            prices.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
 
-            const allPrices = Object.values(product.conditionGroups).flat();
-            const filteredPrices = activeConditionTab === 'all' 
-? allPrices 
-                : product.conditionGroups[activeConditionTab] || [];
+            if (prices.length === 0) {
+                return '<p class="text-gray-500 text-center py-8">No prices available for this condition</p>';
+            }
 
-            const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
-            const bestPrice = sortedFiltered.length > 0? sortedFiltered[0].price : product.prices[0].price;
-            const predictedPrice = Math.round(bestPrice * 0.93);
-            const saving = bestPrice - predictedPrice;
+            const ebayLinks = EBAY_AFFILIATE_LINKS[normalizeName(productGroup[0].name)] || [];
 
-            const tabCounts = {
-                all: allPrices.length,
-                new: product.conditionGroups.new.length,
-                used: product.conditionGroups.used.length,
-                refurbished: product.conditionGroups.refurbished.length,
-                auction: product.conditionGroups.auction.length
-            };
-
-            const modalHtml = `
-                <div class="p-6">
-                    <div class="grid md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <img src="${product.image}" alt="${product.name}" class="w-full rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-900 mb-2">${product.name}</h2>
-                            <p class="text-gray-600 text-sm mb-4">${product.description}</p>
-                            
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i class="fa-solid fa-chart-line text-blue-600"></i>
-                                    <span class="font-semibold text-blue-900 text-sm">Price Prediction</span>
+            return `
+                <div class="space-y-2">
+                    ${prices.map((p, idx) => {
+                        const isBest = idx === 0;
+                        const ebayLink = ebayLinks.find(l => l.condition === p.condition);
+                        return `
+                            <div class="flex items-center justify-between p-3 border rounded-lg ${isBest? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'}">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="store-dot dot-${p.storeStatus || 'gray'}"></span>
+                                        <span class="font-semibold text-sm text-gray-900">${p.store}</span>
+                                        ${isBest? '<span class="px-2 py-0.5 bg-green-600 text-white text-xs font-bold rounded">BEST PRICE</span>' : ''}
+                                    </div>
+                                    <div class="text-xs text-gray-600 ml-4">
+                                        ${p.delivery || 'Check site'} • ${p.stock || 'In stock'}
+                                    </div>
                                 </div>
-                                <p class="text-sm text-blue-800">
-                                    Our AI predicts this will drop to <span class="font-bold">£${predictedPrice}</span> next month 
-                                    <span class="text-green-600 font-semibold">(Save £${saving})</span>
-                                </p>
-                                <p class="text-xs text-blue-600 mt-1">Based on 6-month price history across 18 stores</p>
-                            </div>
-
-                            <button onclick="toggleWatch(${product.prices[0].id})" class="w-full py-2 border border-gray-900 text-gray-900 rounded-lg hover:bg-gray-900 hover:text-white text-sm font-semibold transition mb-2">
-                                <i class="fa-${watchlist.includes(product.prices[0].id)? 'solid' : 'regular'} fa-eye mr-2"></i>
-                                ${watchlist.includes(product.prices[0].id)? 'Watching Price' : 'Watch Price'}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="border-t pt-4">
-                        <div class="condition-tabs">
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'all')" 
-                                    class="condition-tab ${activeConditionTab === 'all'? 'active' : ''}">
-                                All <span class="tab-count">${tabCounts.all}</span>
-                            </button>
-                            ${tabCounts.new > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'new')" 
-                                    class="condition-tab ${activeConditionTab === 'new'? 'active' : ''}">
-                                New <span class="tab-count">${tabCounts.new}</span>
-                            </button>` : ''}
-                            ${tabCounts.used > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'used')" 
-                                    class="condition-tab ${activeConditionTab === 'used'? 'active' : ''}">
-                                Used <span class="tab-count">${tabCounts.used}</span>
-                            </button>` : ''}
-                            ${tabCounts.refurbished > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'refurbished')" 
-                                    class="condition-tab ${activeConditionTab === 'refurbished'? 'active' : ''}">
-                                Refurbished <span class="tab-count">${tabCounts.refurbished}</span>
-                            </button>` : ''}
-                            ${tabCounts.auction > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'auction')" 
-                                    class="condition-tab ${activeConditionTab === 'auction'? 'active' : ''}">
-                                Auction <span class="tab-count">${tabCounts.auction}</span>
-                            </button>` : ''}
-                        </div>
-
-                        <h3 class="text-lg font-bold text-gray-900 mb-3">Retailers Compared</h3>
-                        <div class="space-y-2">
-                            ${sortedFiltered.length > 0? sortedFiltered.filter(p => p.price!== '—').map((price, idx) => `
-                                <div class="flex items-center justify-between p-3 rounded-lg ${idx === 0? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50 border border-gray-200'}">
-                                    <div class="flex items-center gap-3 flex-1">
-                                        <span class="store-dot dot-${price.storeStatus}"></span>
-                                        <div>
-                                            <div class="font-semibold text-gray-900 text-sm">${price.store}</div>
-                                            <div class="text-xs text-gray-500">${price.delivery} • ${price.stock}</div>
-                                        </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="text-right">
+                                        <div class="text-xl font-bold text-gray-900">£${parseFloat(p.price).toFixed(2)}</div>
+                                        ${p.originalPrice? `<div class="text-xs text-gray-500 line-through">£${parseFloat(p.originalPrice).toFixed(2)}</div>` : ''}
                                     </div>
-                                    <div class="text-right mr-3">
-                                        <div class="text-xl font-bold text-gray-900">£${price.price}</div>
-                                        ${price.oldPrice? `<div class="text-xs text-gray-400 line-through">£${price.oldPrice}</div>` : ''}
-                                    </div>
-                                    <a href="${price.url}" target="_blank" class="px-4 py-2 ${price.btnClass || 'bg-gray-900'} text-white rounded-lg hover:opacity-90 text-sm font-semibold whitespace-nowrap">
-                                        ${price.store.includes('New')? 'Buy New' : price.store.includes('Refurbished')? 'Buy Refurb' : price.store.includes('Auction')? 'Bid Now' : price.store.includes('Used')? 'Buy Used' : 'Go to Store'} <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
+                                    <a href="${ebayLink?.url || p.url}" target="_blank" rel="noopener noreferrer"
+                                       class="px-4 py-2 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition ${ebayLink?.btnClass || 'bg-green-600'}">
+                                        View Deal
                                     </a>
                                 </div>
-                            `).join('') : '<div class="text-center py-8 text-gray-500">No items found for this condition</div>'}
-                        </div>
-                    </div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             `;
-
-            document.getElementById('modalContent').innerHTML = modalHtml;
-            document.getElementById('productModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
         }
 
-        function closeModal(event) {
-            if (!event || event.target.id === 'productModal') {
+        function closeModal(e) {
+            if (!e || e.target.id === 'productModal') {
                 document.getElementById('productModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                activeConditionTab = 'all';
             }
         }
 
-        function clearRecentlyViewed() {
-            recentlyViewedIds = [];
-            localStorage.setItem('recentlyViewedIds', JSON.stringify(recentlyViewedIds));
+        function toggleFavourite(id) {
+            const idx = favourites.indexOf(id);
+            if (idx > -1) {
+                favourites.splice(idx, 1);
+            } else {
+                favourites.push(id);
+            }
+            localStorage.setItem('favourites', JSON.stringify(favourites));
+            updateBadges();
             renderProducts();
+        }
+
+        function toggleFavourites() {
+            showingFavourites =!showingFavourites;
+            showingWatchlist = showingHotDeals = showingTrending = false;
+            currentCategory = 'All';
+            currentSearch = '';
+            resetConditionTab();
+            loadProducts();
+            updateCategoryButtons();
+        }
+
+        function openWatchlistModal(productId) {
+            pendingWatchlistId = productId;
+            const modal = document.getElementById('watchlistModal');
+            const content = document.getElementById('watchlistModalContent');
+            const existing = watchlist.find(w => w.id === productId);
+
+            content.innerHTML = `
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Set Price Alert</h3>
+                <p class="text-sm text-gray-600 mb-4">Get notified when the price drops below your target</p>
+                <form onsubmit="saveWatchlist(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Target Price (£)</label>
+                        <input type="number" id="watchlistPrice" step="0.01" required
+                               value="${existing?.targetPrice || ''}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm"
+                               placeholder="e.g. 899.99">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm">
+                        ${existing? 'Update Alert' : 'Set Alert'}
+                    </button>
+                    ${existing? `
+                        <button type="button" onclick="removeFromWatchlist(${productId})"
+                                class="w-full mt-2 py-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 font-semibold text-sm">
+                            Remove Alert
+                        </button>
+                    ` : ''}
+                </form>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeWatchlistModal(e) {
+            if (!e || e.target.id === 'watchlistModal') {
+                document.getElementById('watchlistModal').classList.add('hidden');
+            }
+        }
+
+        function saveWatchlist(e) {
+            e.preventDefault();
+            const targetPrice = parseFloat(document.getElementById('watchlistPrice').value);
+            const existingIdx = watchlist.findIndex(w => w.id === pendingWatchlistId);
+
+            if (existingIdx > -1) {
+                watchlist[existingIdx].targetPrice = targetPrice;
+            } else {
+                watchlist.push({ id: pendingWatchlistId, targetPrice });
+            }
+
+            localStorage.setItem('watchlist', JSON.stringify(watchlist));
+            updateBadges();
+            closeWatchlistModal();
+            renderProducts();
+        }
+
+        function removeFromWatchlist(id) {
+            watchlist = watchlist.filter(w => w.id!== id);
+            localStorage.setItem('watchlist', JSON.stringify(watchlist));
+            updateBadges();
+            closeWatchlistModal();
+            renderProducts();
+        }
+
+        function toggleWatchlist() {
+            showingWatchlist =!showingWatchlist;
+            showingFavourites = showingHotDeals = showingTrending = false;
+            currentCategory = 'All';
+            currentSearch = '';
+            resetConditionTab();
+            loadProducts();
+            updateCategoryButtons();
+        }
+
+        function addToRecentlyViewed(id) {
+            recentlyViewedIds = recentlyViewedIds.filter(x => x!== id);
+            recentlyViewedIds.unshift(id);
+            recentlyViewedIds = recentlyViewedIds.slice(0, 10);
+            localStorage.setItem('recentlyViewedIds', JSON.stringify(recentlyViewedIds));
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            showingHotDeals = cat === 'HotDeals';
+            showingTrending = cat === 'Trending';
+            showingFavourites = showingWatchlist = false;
+            currentSearch = '';
+            resetConditionTab();
+            loadProducts();
+            updateCategoryButtons();
+        }
+
+        function updateCategoryButtons() {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                const cat = btn.dataset.cat;
+                if (cat === currentCategory || (cat === 'HotDeals' && showingHotDeals) || (cat === 'Trending' && showingTrending)) {
+                    btn.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                    btn.classList.add('bg-green-600', 'text-white');
+                } else {
+                    btn.classList.remove('bg-green-600', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                }
+            });
+        }
+
+        function updateBadges() {
+            const favBadge = document.getElementById('favBadge');
+            const watchBadge = document.getElementById('watchBadge');
+            const hotBadge = document.getElementById('hotDealsBadge');
+            const trendBadge = document.getElementById('trendingBadge');
+
+            if (favourites.length > 0) {
+                favBadge.textContent = favourites.length;
+                favBadge.classList.remove('hidden');
+            } else {
+                favBadge.classList.add('hidden');
+            }
+
+            if (watchlist.length > 0) {
+                watchBadge.textContent = watchlist.length;
+                watchBadge.classList.remove('hidden');
+            } else {
+                watchBadge.classList.add('hidden');
+            }
+
+            const hotCount = allProducts.filter(p => p.isHotDeal).length;
+            const trendCount = allProducts.filter(p => p.isTrending).length;
+
+            if (hotCount > 0) {
+                hotBadge.textContent = hotCount;
+                hotBadge.classList.remove('hidden');
+            } else {
+                hotBadge.classList.add('hidden');
+            }
+
+            if (trendCount > 0) {
+                trendBadge.textContent = trendCount;
+                trendBadge.classList.remove('hidden');
+            } else {
+                trendBadge.classList.add('hidden');
+            }
+        }
+
+        function resetHome(e) {
+            e.preventDefault();
+            currentCategory = 'All';
+            currentSearch = '';
+            showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
+            document.getElementById('searchInput').value = '';
+            resetConditionTab();
+            loadProducts();
+            updateCategoryButtons();
         }
     </script>
 </body>
