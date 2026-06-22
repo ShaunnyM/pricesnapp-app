@@ -1,4 +1,6 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PriceSnap - Global Price Comparison</title>
@@ -15,7 +17,7 @@
 .condition-tab:hover { color: #10b981; }
 .condition-tab.active { color: #10b981; border-bottom-color: #10b981; }
 .tab-count { background: #f3f4f6; color: #6b7280; font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 9999px; margin-left: 0.375rem; }
-.condition-tab.active .tab-count { background: #d1fae5; color: #059669; }
+.condition-tab.active.tab-count { background: #d1fae5; color: #059669; }
 .hot-deals-wrapper { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px solid #fca5a5; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); }
 .trending-wrapper { background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); border: 2px solid #facc15; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.25); }
 .category-section { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -41,8 +43,9 @@
 .bnpl-badge { margin-top: 0.375rem; display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: #6b7280; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 200; transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .toast.show { transform: translateX(-50%) translateY(0); }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.-right-2{right:-0.5rem}.-top-2{top:-0.5rem}.right-4{right:1rem}.top-0{top:0px}.top-4{top:1rem}.z-10{z-index:10}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.ml-1{margin-left:0.25rem}.mr-1{margin-right:0.25rem}.flex{display:flex}.hidden{display:none}.h-12{height:3rem}.h-5{height:1.25rem}.w-5{width:1.25rem}.max-w-2xl{max-width:42rem}.max-w-4xl{max-width:56rem}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0{gap:0px}.gap-2{gap:0.5rem}.gap-5{gap:1.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-l-lg{border-top-left-radius:0.5rem;border-bottom-left-radius:0.5rem}.rounded-r-lg{border-top-right-radius:0.5rem;border-bottom-right-radius:0.5rem}.border{border-width:1px}.border-0{border-width:0px}.border-b{border-bottom-width:1px}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246 / var(--tw-bg-opacity, 1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.bg-green-600{--tw-bg-opacity:1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.bg-pink-500{--tw-bg-opacity:1;background-color:rgb(236 72 153 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-yellow-500{--tw-bg-opacity:1;background-color:rgb(234 179 8 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-green-50{--tw-gradient-from:#f0fdf4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(240 253 244 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-blue-50{--tw-gradient-to:#eff6ff var(--tw-gradient-to-position)}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-12{padding-top:3rem;padding-bottom:3rem}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.leading-tight{line-height:1.25}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-900{--tw-text-opacity:1;color:rgb(17 24 39 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-gray-100:hover{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.hover\:bg-green-700:hover{--tw-bg-opacity:1;background-color:rgb(21 128 61 / var(--tw-bg-opacity, 1))}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-gray-600:hover{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.hover\:text-green-600:hover{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.hover\:text-pink-600:hover{--tw-text-opacity:1;color:rgb(219 39 119 / var(--tw-text-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-green-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(34 197 94 / var(--tw-ring-opacity, 1))}@media (min-width: 768px){.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}.md\:text-base{font-size:1rem;line-height:1.5rem}}</style></head>
+</head>
 <body class="bg-gray-50">
     <header class="bg-white sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-4 py-2">
@@ -98,8 +101,8 @@
         </div>
     </section>
     <section class="max-w-7xl mx-auto px-4 py-4">
-        <div id="resultsInfo" class="text-gray-600 mb-3 font-medium text-sm">Error loading products</div>
-        <div id="productsContainer"><div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div></div>
+        <div id="resultsInfo" class="text-gray-600 mb-3 font-medium text-sm">Loading deals...</div>
+        <div id="productsContainer"></div>
     </section>
     <div id="productModal" class="modal-backdrop hidden" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -118,25 +121,308 @@
         let activeConditionTab = 'all';
         let favourites = JSON.parse(localStorage.getItem('pricesnap_favs') || '[]');
         let watchlist = JSON.parse(localStorage.getItem('pricesnap_watch') || '[]');
+
         document.addEventListener('DOMContentLoaded', () => { updateBadges(); loadProducts(); });
         document.getElementById('searchBtn').addEventListener('click', () => { currentSearch = document.getElementById('searchInput').value; resetConditionTab(); loadProducts(); });
         document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearch = document.getElementById('searchInput').value; resetConditionTab(); loadProducts(); } });
-        function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2000); }
-        function setCategory(cat) { currentCategory = cat; resetConditionTab(); document.querySelectorAll('.category-btn').forEach(btn => { if (btn.dataset.cat === cat) { btn.className = 'category-btn px-3 py-1 rounded-full border bg-green-600 text-white text-xs font-medium'; } else { btn.className = 'category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium'; } }); loadProducts(); }
-        function resetHome(e) { e.preventDefault(); currentSearch = ''; currentCategory = 'All'; document.getElementById('searchInput').value = ''; resetConditionTab(); setCategory('All'); }
-        function toggleFavourite(productName, e) { e.stopPropagation(); const idx = favourites.indexOf(productName); if (idx > -1) { favourites.splice(idx, 1); showToast('Removed from favourites'); } else { favourites.push(productName); showToast('Added to favourites'); } localStorage.setItem('pricesnap_favs', JSON.stringify(favourites)); updateBadges(); renderProducts(); }
-        function showWatchlist() { alert('Watchlist: ' + (watchlist.length? watchlist.join(', ') : 'Empty')); }
-        function showFavourites() { if (favourites.length === 0) { showToast('No favourites yet'); return; } alert('Favourites:\n' + favourites.join('\n')); }
-        function updateBadges() { const favBadge = document.getElementById('favBadge'); const watchBadge = document.getElementById('watchBadge'); if (favourites.length > 0) { favBadge.textContent = favourites.length; favBadge.classList.remove('hidden'); } else { favBadge.classList.add('hidden'); } if (watchlist.length > 0) { watchBadge.textContent = watchlist.length; watchBadge.classList.remove('hidden'); } else { watchBadge.classList.add('hidden'); } }
-        async function loadProducts() { const container = document.getElementById('productsContainer'); const info = document.getElementById('resultsInfo'); container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>'; try { let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending')? 'All' : currentCategory}`; if (currentCategory === 'HotDeals') url += '&hotDeals=true'; if (currentCategory === 'Trending') url += '&trending=true'; const res = await fetch(url); allProducts = await res.json(); renderProducts(); } catch (err) { info.textContent = 'Error loading products'; container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>'; console.error(err); } }
-        function renderProducts() { const container = document.getElementById('productsContainer'); const info = document.getElementById('resultsInfo'); let products = [...allProducts]; if (currentCategory === 'HotDeals') { info.textContent = `Hot Deals (${products.length}) - Biggest Price Drops`; } else if (currentCategory === 'Trending') { info.textContent = `Trending Now (${products.length}) - Most Viewed Today`; } else { info.textContent = `Found ${products.length} deals ${currentSearch? `for "${currentSearch}"` : ''} in ${currentCategory}`; } if (products.length === 0) { container.innerHTML = '<div class="text-center py-12 text-gray-500">No products found.</div>'; return; } const hotCount = allProducts.filter(p => p.hotDeal).length; document.getElementById('hotDealsBadge').textContent = hotCount; document.getElementById('hotDealsBadge').classList.toggle('hidden', hotCount === 0); const trendingCount = allProducts.filter(p => p.trending).length; document.getElementById('trendingBadge').textContent = trendingCount; document.getElementById('trendingBadge').classList.toggle('hidden', trendingCount === 0); groupedProducts = {}; products.forEach(p => { if (!groupedProducts[p.name]) { groupedProducts[p.name] = { name: p.name, image: p.image, category: p.category, hotDeal: p.hotDeal, trending: p.trending, description: p.description || 'No description available', prices: [], conditionGroups: { new: [], used: [], refurbished: [], auction: [] } }; } if (p.prices && p.prices.length > 0) { p.prices.forEach(price => { groupedProducts[p.name].prices.push(price); const cond = price.condition || 'new'; groupedProducts[p.name].conditionGroups[cond].push(price); }); } else { const priceObj = { store: p.store, price: p.price, oldPrice: p.oldPrice, storeStatus: p.storeStatus, url: p.url, id: p.id, delivery: p.delivery || '2-3 days', stock: p.stock || 'In Stock', btnClass: p.btnClass || '', condition: p.condition || 'new', bnpl: p.bnpl || {available: false} }; groupedProducts[p.name].prices.push(priceObj); groupedProducts[p.name].conditionGroups[priceObj.condition].push(priceObj); } }); Object.values(groupedProducts).forEach(g => { Object.keys(g.conditionGroups).forEach(cond => { g.conditionGroups[cond].sort((a, b) => a.price - b.price); }); const newPrices = g.conditionGroups.new.length > 0 ? g.conditionGroups.new.slice(0, 3) : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3); g.prices = newPrices; while (g.prices.length < 3) { g.prices.push({ store: 'More stores soon', price: '—', storeStatus: 'gray', url: '#', id: -1, delivery: '—', stock: '—', condition: 'new', bnpl: {available: false} }); } }); const categories = ['Tech', 'Gaming', 'Appliances', 'Bedroom', 'Living Room', 'Kids', 'Garden']; let html = ''; if (currentCategory === 'All' && !currentSearch) { const hotDealsProducts = Object.values(groupedProducts).filter(p => p.hotDeal); if (hotDealsProducts.length > 0) { const scrollProducts = [...hotDealsProducts,...hotDealsProducts]; html += `<div class="hot-deals-wrapper"><div class="flex items-center justify-between mb-3"><h2 class="text-lg font-bold text-red-700 flex items-center gap-2"><i class="fa-solid fa-fire"></i> HOT DEALS - LIMITED TIME</h2><button onclick="setCategory('HotDeals')" class="text-sm text-red-600 hover:text-red-700 font-medium">See all <i class="fa-solid fa-arrow-right text-xs"></i></button></div><div class="overflow-hidden"><div class="hot-deals-scroll">${scrollProducts.map(p => productCard(p)).join('')}</div></div></div>`; } const trendingProducts = Object.values(groupedProducts).filter(p => p.trending); if (trendingProducts.length > 0) { const scrollProducts = [...trendingProducts,...trendingProducts]; html += `<div class="trending-wrapper"><div class="flex items-center justify-between mb-3"><h2 class="text-lg font-bold text-yellow-700 flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING NOW</h2><button onclick="setCategory('Trending')" class="text-sm text-yellow-600 hover:text-yellow-700 font-medium">See all <i class="fa-solid fa-arrow-right text-xs"></i></button></div><div class="overflow-hidden"><div class="trending-scroll">${scrollProducts.map(p => productCard(p)).join('')}</div></div></div>`; } categories.forEach(cat => { const catProducts = Object.values(groupedProducts).filter(p => p.category === cat); if (catProducts.length > 0) { const rowId = `row-${cat.replace(/\s+/g, '-')}`; html += `<div class="category-section"><div class="flex items-center justify-between mb-3"><h2 class="text-base font-bold text-gray-900">${cat}</h2><button onclick="setCategory('${cat}')" class="text-sm text-green-600 hover:text-green-700 font-medium">See all <i class="fa-solid fa-arrow-right text-xs"></i></button></div><div class="swipe-wrapper"><button class="swipe-arrow left" onclick="scrollRow('${rowId}', -280)"><i class="fa-solid fa-chevron-left"></i></button><div id="${rowId}" class="swipe-container">${catProducts.map(p => productCard(p)).join('')}</div><button class="swipe-arrow right" onclick="scrollRow('${rowId}', 280)"><i class="fa-solid fa-chevron-right"></i></button></div></div>`; } }); } else { const rowId = 'row-filtered'; html = `<div class="swipe-wrapper"><button class="swipe-arrow left" onclick="scrollRow('${rowId}', -280)"><i class="fa-solid fa-chevron-left"></i></button><div id="${rowId}" class="swipe-container">${Object.values(groupedProducts).map(p => productCard(p)).join('')}</div><button class="swipe-arrow right" onclick="scrollRow('${rowId}', 280)"><i class="fa-solid fa-chevron-right"></i></button></div>`; } container.innerHTML = html; }
-        function scrollRow(id, amount) { document.getElementById(id).scrollBy({ left: amount, behavior: 'smooth' }); }
-        function productCard(p) { const isFaved = favourites.includes(p.name); return `<div class="swipe-item bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col"><div class="relative"><img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><button onclick="toggleFavourite('${p.name.replace(/'/g, "\\'")}', event)" class="fav-heart-btn ${isFaved? 'active' : ''}"><i class="fa-solid fa-heart"></i></button>${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">Best</div>'}</div><div class="p-3 flex-1 flex flex-col"><h3 class="font-semibold text-gray-900 mb-2 text-sm leading-tight">${p.name}</h3><div class="mb-3 flex-1"><div class="text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">TOP 3 NEW PRICES</div>${p.prices.map((price, idx) => `<div class="py-1 ${idx < 2? 'border-b border-gray-100' : ''}"><div class="flex items-center justify-between"><div class="flex items-center"><span class="store-dot dot-${price.storeStatus}"></span><span class="text-xs text-gray-700 font-medium">${price.store.replace('eBay - New', 'eBay')}</span></div><span class="text-sm font-bold text-gray-900">${price.price === '—'? '—' : '£' + price.price}</span></div>${price.bnpl && price.bnpl.available ? `<div class="bnpl-badge"><i class="fa-solid fa-credit-card text-green-600"></i><span>or <span class="font-semibold">£${price.bnpl.installment}</span> x ${price.bnpl.term}</span></div>` : ''}</div>`).join('')}</div><button onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')" class="block w-full py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-semibold text-center mt-auto">View Deal <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i></button></div></div>`; }
-        function switchConditionTab(productName, condition) { activeConditionTab = condition; openProductModal(productName); }
-        function resetConditionTab() { activeConditionTab = 'all'; }
-        function openProductModal(productName) { const product = groupedProducts[productName]; if (!product) return; const allPrices = Object.values(product.conditionGroups).flat(); const filteredPrices = activeConditionTab === 'all' ? allPrices : product.conditionGroups[activeConditionTab] || []; const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price); const bestPrice = sortedFiltered.length > 0? sortedFiltered[0].price : product.prices[0].price; const predictedPrice = Math.round(bestPrice * 0.93); const saving = bestPrice - predictedPrice; const tabCounts = { all: allPrices.length, new: product.conditionGroups.new.length, used: product.conditionGroups.used.length, refurbished: product.conditionGroups.refurbished.length, auction: product.conditionGroups.auction.length }; const modalHtml = `<div class="p-6"><div class="grid md:grid-cols-2 gap-6 mb-6"><div><img src="${product.image}" alt="${product.name}" class="w-full rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"></div><div><h2 class="text-2xl font-bold text-gray-900 mb-2">${product.name}</h2><p class="text-gray-600 text-sm mb-4">${product.description}</p><div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4"><div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-chart-line text-blue-600"></i><span class="font-semibold text-blue-900 text-sm">Price Prediction</span></div><p class="text-sm text-blue-800">Our AI predicts this will drop to <span class="font-bold">£${predictedPrice}</span> next month <span class="text-green-600 font-semibold">(Save £${saving})</span></p><p class="text-xs text-blue-600 mt-1">Based on 6-month price history across 18 stores</p></div></div></div><div class="border-t pt-4"><div class="condition-tabs"><button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'all')" class="condition-tab ${activeConditionTab === 'all'? 'active' : ''}">All <span class="tab-count">${tabCounts.all}</span></button>${tabCounts.new > 0? `<button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'new')" class="condition-tab ${activeConditionTab === 'new'? 'active' : ''}">New <span class="tab-count">${tabCounts.new}</span></button>` : ''}${tabCounts.used > 0? `<button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'used')" class="condition-tab ${activeConditionTab === 'used'? 'active' : ''}">Used <span class="tab-count">${tabCounts.used}</span></button>` : ''}${tabCounts.refurbished > 0? `<button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'refurbished')" class="condition-tab ${activeConditionTab === 'refurbished'? 'active' : ''}">Refurbished <span class="tab-count">${tabCounts.refurbished}</span></button>` : ''}${tabCounts.auction > 0? `<button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'auction')" class="condition-tab ${activeConditionTab === 'auction'? 'active' : ''}">Auction <span class="tab-count">${tabCounts.auction}</span></button>` : ''}</div><h3 class="text-lg font-bold text-gray-900 mb-3">Retailers Compared</h3><div class="space-y-2">${sortedFiltered.length > 0? sortedFiltered.filter(p => p.price!== '—').map((price, idx) => `<div class="p-3 rounded-lg ${idx === 0? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50 border border-gray-200'}"><div class="flex items-center justify-between"><div class="flex items-center gap-3 flex-1"><span class="store-dot dot-${price.storeStatus}"></span><div><div class="font-semibold text-gray-900 text-sm">${price.store}</div><div class="text-xs text-gray-500">${price.delivery} • ${price.stock}</div></div></div><div class="text-right mr-3"><div class="text-xl font-bold text-gray-900">£${price.price}</div>${price.oldPrice? `<div class="text-xs text-gray-400 line-through">£${price.oldPrice}</div>` : ''}</div><a href="${price.url}" target="_blank" class="px-4 py-2 ${price.btnClass || 'bg-gray-900'} text-white rounded-lg hover:opacity-90 text-sm font-semibold whitespace-nowrap">${price.store.includes('New')? 'Buy New' : price.store.includes('Refurbished')? 'Buy Refurb' : price.store.includes('Auction')? 'Bid Now' : price.store.includes('Used')? 'Buy Used' : 'Go to Store'} <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i></a></div>${price.bnpl && price.bnpl.available ? `<div class="mt-2 flex items-center gap-2 text-xs text-gray-600 pl-6"><i class="fa-solid fa-credit-card text-green-600"></i><span>Pay with ${price.bnpl.providers.join(' or ')}: <span class="font-semibold">£${price.bnpl.installment}</span> x ${price.bnpl.term}</span></div>` : ''}</div>`).join('') : '<div class="text-center py-8 text-gray-500">No items found for this condition</div>'}</div></div></div>`; document.getElementById('modalContent').innerHTML = modalHtml; document.getElementById('productModal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
-        function closeModal(event) { if (!event || event.target.id === 'productModal') { document.getElementById('productModal').classList.add('hidden'); document.body.style.overflow = 'auto'; activeConditionTab = 'all'; } }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            resetConditionTab();
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = 'category-btn px-3 py-1 rounded-full border bg-green-600 text-white text-xs font-medium';
+                } else {
+                    btn.className = 'category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium';
+                }
+            });
+            loadProducts();
+        }
+
+        function resetHome(e) {
+            e.preventDefault();
+            currentSearch = '';
+            currentCategory = 'All';
+            document.getElementById('searchInput').value = '';
+            resetConditionTab();
+            setCategory('All');
+        }
+
+        function toggleFavourite(productName, e) {
+            e.stopPropagation();
+            const idx = favourites.indexOf(productName);
+            if (idx > -1) {
+                favourites.splice(idx, 1);
+                showToast('Removed from favourites');
+            } else {
+                favourites.push(productName);
+                showToast('Added to favourites');
+            }
+            localStorage.setItem('pricesnap_favs', JSON.stringify(favourites));
+            updateBadges();
+            renderProducts();
+        }
+
+        function showWatchlist() {
+            alert('Watchlist: ' + (watchlist.length? watchlist.join(', ') : 'Empty'));
+        }
+
+        function showFavourites() {
+            if (favourites.length === 0) {
+                showToast('No favourites yet');
+                return;
+            }
+            alert('Favourites:\n' + favourites.join('\n'));
+        }
+
+        function updateBadges() {
+            const favBadge = document.getElementById('favBadge');
+            const watchBadge = document.getElementById('watchBadge');
+            if (favourites.length > 0) {
+                favBadge.textContent = favourites.length;
+                favBadge.classList.remove('hidden');
+            } else {
+                favBadge.classList.add('hidden');
+            }
+            if (watchlist.length > 0) {
+                watchBadge.textContent = watchlist.length;
+                watchBadge.classList.remove('hidden');
+            } else {
+                watchBadge.classList.add('hidden');
+            }
+        }
+
+        async function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            const info = document.getElementById('resultsInfo');
+            container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
+            try {
+                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending')? 'All' : currentCategory}`;
+                if (currentCategory === 'HotDeals') url += '&hotDeals=true';
+                if (currentCategory === 'Trending') url += '&trending=true';
+                const res = await fetch(url);
+                allProducts = await res.json();
+                renderProducts();
+            } catch (err) {
+                info.textContent = 'Error loading products';
+                container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>';
+                console.error(err);
+            }
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+            const info = document.getElementById('resultsInfo');
+            container.innerHTML = '';
+            if (!allProducts.length) {
+                info.textContent = 'No products found';
+                container.innerHTML = '<div class="text-center py-12 text-gray-500">Try a different search or category</div>';
+                return;
+            }
+            groupedProducts = {};
+            allProducts.forEach(p => {
+                if (!groupedProducts[p.name]) groupedProducts[p.name] = [];
+                groupedProducts[p.name].push(p);
+            });
+            const hotDeals = [];
+            const trending = [];
+            const rest = [];
+            Object.keys(groupedProducts).forEach(name => {
+                const items = groupedProducts[name];
+                if (items.some(i => i.hotDeal)) hotDeals.push({name, items});
+                else if (items.some(i => i.trending)) trending.push({name, items});
+                else rest.push({name, items});
+            });
+            document.getElementById('hotDealsBadge').textContent = hotDeals.length;
+            document.getElementById('hotDealsBadge').classList.toggle('hidden', hotDeals.length === 0);
+            document.getElementById('trendingBadge').textContent = trending.length;
+            document.getElementById('trendingBadge').classList.toggle('hidden', trending.length === 0);
+            if (currentCategory === 'HotDeals') {
+                info.textContent = `${hotDeals.length} hot deals found`;
+                renderSection(hotDeals, container, 'Hot Deals', 'hot-deals-wrapper', true);
+            } else if (currentCategory === 'Trending') {
+                info.textContent = `${trending.length} trending items`;
+                renderSection(trending, container, 'Trending', 'trending-wrapper', true);
+            } else {
+                const total = hotDeals.length + trending.length + rest.length;
+                info.textContent = `${total} products found`;
+                if (hotDeals.length) renderSection(hotDeals, container, 'Hot Deals', 'hot-deals-wrapper', true);
+                if (trending.length) renderSection(trending, container, 'Trending Now', 'trending-wrapper', true);
+                if (rest.length) renderCategories(rest, container);
+            }
+        }
+
+        function renderSection(products, container, title, wrapperClass, autoScroll) {
+            const section = document.createElement('div');
+            section.className = wrapperClass;
+            section.innerHTML = `<h2 class="text-xl font-bold text-gray-900 mb-3 flex items-center"><i class="fa-solid fa-${title.includes('Hot')? 'fire' : 'arrow-trend-up'} mr-2 text-${title.includes('Hot')? 'red' : 'yellow'}-500"></i>${title}</h2>`;
+            const scrollWrapper = document.createElement('div');
+            scrollWrapper.className = 'overflow-hidden';
+            const scroll = document.createElement('div');
+            scroll.className = autoScroll? (title.includes('Hot')? 'hot-deals-scroll' : 'trending-scroll') : 'swipe-container';
+            products.forEach(prod => {
+                const div = document.createElement('div');
+                div.className = 'swipe-item';
+                div.innerHTML = productCard(prod);
+                scroll.appendChild(div);
+            });
+            scrollWrapper.appendChild(scroll);
+            section.appendChild(scrollWrapper);
+            container.appendChild(section);
+        }
+
+        function renderCategories(products, container) {
+            const byCat = {};
+            products.forEach(p => {
+                const cat = p.items[0].category || 'Other';
+                if (!byCat[cat]) byCat[cat] = [];
+                byCat[cat].push(p);
+            });
+            Object.keys(byCat).forEach(cat => {
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                section.innerHTML = `<h2 class="text-xl font-bold text-gray-900 mb-3">${cat}</h2>`;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'swipe-wrapper';
+                wrapper.innerHTML = `
+                    <button class="swipe-arrow left" onclick="scrollRow(this, -300)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div class="swipe-container"></div>
+                    <button class="swipe-arrow right" onclick="scrollRow(this, 300)"><i class="fa-solid fa-chevron-right"></i></button>
+                `;
+                const scrollCont = wrapper.querySelector('.swipe-container');
+                byCat[cat].forEach(prod => {
+                    const div = document.createElement('div');
+                    div.className = 'swipe-item';
+                    div.innerHTML = productCard(prod);
+                    scrollCont.appendChild(div);
+                });
+                section.appendChild(wrapper);
+                container.appendChild(section);
+            });
+        }
+
+        function scrollRow(btn, amount) {
+            const container = btn.parentElement.querySelector('.swipe-container');
+            container.scrollBy({ left: amount, behavior: 'smooth' });
+        }
+
+        function productCard(p) {
+            const isFaved = favourites.includes(p.name);
+            const items = p.items;
+            const minPrice = Math.min(...items.map(i => i.price));
+            const maxPrice = Math.max(...items.map(i => i.price));
+            const mainImg = items[0].image || 'https://via.placeholder.com/300x300?text=No+Image';
+            const hotDeal = items.some(i => i.hotDeal);
+            const trending = items.some(i => i.trending);
+            const storeCount = new Set(items.map(i => i.store)).size;
+            const bnplStores = items.filter(i => i.bnpl).length;
+            return `
+                <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer relative group overflow-hidden h-full" onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')">
+                    <button class="fav-heart-btn ${isFaved? 'active' : ''}" onclick="toggleFavourite('${p.name.replace(/'/g, "\\'")}', event)">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                    <div class="relative">
+                        <img src="${mainImg}" alt="${p.name}" class="w-full h-48 object-contain p-4 bg-gray-50">
+                        ${hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fa-solid fa-fire"></i> HOT</div>' : ''}
+                        ${trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : ''}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 h-10">${p.name}</h3>
+                        <div class="text-xs text-gray-500 mb-2">From ${storeCount} store${storeCount > 1? 's' : ''}</div>
+                        <div class="text-lg font-bold text-green-600">£${minPrice.toFixed(2)}${minPrice!== maxPrice? ' - £' + maxPrice.toFixed(2) : ''}</div>
+                        ${bnplStores > 0? `<div class="bnpl-badge"><i class="fa-solid fa-credit-card"></i> ${bnplStores} store${bnplStores > 1? 's' : ''} offer BNPL</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function switchConditionTab(productName, condition) {
+            activeConditionTab = condition;
+            openProductModal(productName);
+        }
+
+        function resetConditionTab() {
+            activeConditionTab = 'all';
+        }
+
+        function openProductModal(productName) {
+            const product = groupedProducts[productName];
+            if (!product) return;
+            const items = product;
+            const allLive = items.filter(i => i.condition === 'New');
+            const allRefurb = items.filter(i => i.condition === 'Refurbished');
+            const allUsed = items.filter(i => i.condition === 'Used');
+            let filteredItems = items;
+            if (activeConditionTab === 'new') filteredItems = allLive;
+            else if (activeConditionTab === 'refurb') filteredItems = allRefurb;
+            else if (activeConditionTab === 'used') filteredItems = allUsed;
+            filteredItems.sort((a, b) => a.price - b.price);
+            const mainImg = items[0].image || 'https://via.placeholder.com/400x400?text=No+Image';
+            const modal = document.getElementById('productModal');
+            const content = document.getElementById('modalContent');
+            const conditionTabs = `
+                <div class="condition-tabs">
+                    <button class="condition-tab ${activeConditionTab === 'all'? 'active' : ''}" onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'all')">
+                        All <span class="tab-count">${items.length}</span>
+                    </button>
+                    ${allLive.length > 0? `<button class="condition-tab ${activeConditionTab === 'new'? 'active' : ''}" onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'new')">New <span class="tab-count">${allLive.length}</span></button>` : ''}
+                    ${allRefurb.length > 0? `<button class="condition-tab ${activeConditionTab === 'refurb'? 'active' : ''}" onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'refurb')">Refurbished <span class="tab-count">${allRefurb.length}</span></button>` : ''}
+                    ${allUsed.length > 0? `<button class="condition-tab ${activeConditionTab === 'used'? 'active' : ''}" onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'used')">Used <span class="tab-count">${allUsed.length}</span></button>` : ''}
+                </div>
+            `;
+            const storeList = filteredItems.map(item => {
+                const dotClass = item.stock === 'In Stock'? 'dot-green' : item.stock === 'Low Stock'? 'dot-orange' : item.stock === 'Out of Stock'? 'dot-red' : 'dot-gray';
+                const deliveryText = item.deliveryTime? `${item.deliveryTime}` : 'Check delivery';
+                return `
+                    <div class="flex items-center justify-between py-3 px-4 border-b last:border-b-0 hover:bg-gray-50">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <span class="store-dot ${dotClass}"></span>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-semibold text-sm text-gray-900 truncate">${item.store}</div>
+                                <div class="text-xs text-gray-500">${deliveryText}${item.condition!== 'New'? ` • ${item.condition}` : ''}</div>
+                            </div>
+                        </div>
+                        <div class="text-right ml-3">
+                            <div class="text-lg font-bold text-green-600">£${item.price.toFixed(2)}</div>
+                            <a href="${item.link}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 font-medium">View Deal →</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            content.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-6 p-6">
+                    <div>
+                        <img src="${mainImg}" alt="${productName}" class="w-full rounded-lg bg-gray-50 p-4">
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">${productName}</h2>
+                        <div class="text-sm text-gray-600 mb-4">${filteredItems.length} offer${filteredItems.length > 1? 's' : ''} available</div>
+                        ${conditionTabs}
+                        <div class="border rounded-lg max-h-96 overflow-y-auto">
+                            ${storeList || '<div class="p-8 text-center text-gray-500">No offers for this condition</div>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'productModal') {
+                document.getElementById('productModal').classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
     </script>
-
-
-</body></html>
+</body>
+</html>
