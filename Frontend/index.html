@@ -50,8 +50,7 @@
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <header class="bg-white sticky top-0 z-50 border-b">
+<body class="bg-gray-50">    <header class="bg-white sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-4 py-2">
             <div class="flex items-center justify-between">
                 <a href="/" onclick="resetHome(event)" class="flex items-center gap-2">
@@ -73,7 +72,8 @@
                 </nav>
             </div>
         </div>
-    </header>    <section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
+    </header>
+    <section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
                 Find the <span class="text-green-600">cheapest price</span> anywhere
@@ -104,8 +104,7 @@
                 <button onclick="setCategory('Garden')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Garden">Garden</button>
             </div>
         </div>
-    </section>
-    <section class="max-w-7xl mx-auto px-4 py-4">
+    </section>    <section class="max-w-7xl mx-auto px-4 py-4">
         <div id="resultsInfo" class="text-gray-600 mb-3 font-medium text-sm">Loading deals...</div>
         <div id="productsContainer"></div>
     </section>
@@ -140,13 +139,14 @@
                 <p id="authToggle" class="text-xs text-gray-500 text-center">
                     Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>
                 </p>
+                <p class="text-xs text-gray-400 text-center mt-3">Secure login powered by Supabase</p>
             </div>
         </div>
     </div>
     <div id="toast" class="toast"></div>
     <script>
-        // Supabase - ADDED
-        const SUPABASE_URL = 'https://ecbewbncnzwxfbzlqm.supabase.co';
+        // SUPABASE - ADDED
+        const SUPABASE_URL = 'https://ecbewbncnzwxfbzlqmq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_9kfQjJCgy0ddc64NTbL-Zw_dsLs1W_a';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
@@ -204,22 +204,23 @@
                     condition: 'auction'
                 }
             ]
-        };        document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session?.user || null;
-            updateAuthUI();
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                currentUser = session?.user || null;
+                updateAuthUI();
+            } catch(e) {}
             updateBadges();
             loadProducts();
-            
             supabase.auth.onAuthStateChange((event, session) => {
                 currentUser = session?.user || null;
                 updateAuthUI();
                 if (event === 'SIGNED_IN') showToast('Logged in!');
                 if (event === 'SIGNED_OUT') showToast('Logged out');
             });
-        });
-
-        document.getElementById('searchBtn').addEventListener('click', () => {
+        });        document.getElementById('searchBtn').addEventListener('click', () => {
             currentSearch = document.getElementById('searchInput').value;
             showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
             resetConditionTab();
@@ -359,7 +360,9 @@
             document.getElementById('watchlistModalContent').innerHTML = modalHtml;
             document.getElementById('watchlistModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-        }        function confirmWatchlistAdd() {
+        }
+
+        function confirmWatchlistAdd() {
             if (pendingWatchlistId && !watchlist.includes(pendingWatchlistId)) {
                 watchlist.push(pendingWatchlistId);
                 try {
@@ -406,16 +409,10 @@
         }
 
         function updateBadges() {
-            const favBadge = document.getElementById('favBadge');
-            const watchBadge = document.getElementById('watchBadge');
-            if (favBadge) {
-                favBadge.textContent = favourites.length;
-                favBadge.classList.toggle('hidden', favourites.length === 0);
-            }
-            if (watchBadge) {
-                watchBadge.textContent = watchlist.length;
-                watchBadge.classList.toggle('hidden', watchlist.length === 0);
-            }
+            document.getElementById('favBadge').textContent = favourites.length;
+            document.getElementById('favBadge').classList.toggle('hidden', favourites.length === 0);
+            document.getElementById('watchBadge').textContent = watchlist.length;
+            document.getElementById('watchBadge').classList.toggle('hidden', watchlist.length === 0);
         }
 
         function openAuth(type) {
@@ -431,12 +428,10 @@
         function switchAuthMode() {
             authMode = authMode === 'login' ? 'signup' : 'login';
             openAuth(authMode);
-        }
-
-        async function handleAuth() {
+        }        async function handleAuth() {
             const email = document.getElementById('authEmail').value.trim();
             const pass = document.getElementById('authPassword').value;
-            if (!email || !pass) {
+            if (!email ||!pass) {
                 showToast('Enter email and password');
                 return;
             }
@@ -460,8 +455,8 @@
                 closeAuthModal();
                 document.getElementById('authEmail').value = '';
                 document.getElementById('authPassword').value = '';
-            } catch (error) {
-                showToast(error.message);
+            } catch (err) {
+                showToast(err.message);
             }
         }
 
@@ -475,14 +470,14 @@
         async function loadProducts() {
             const container = document.getElementById('productsContainer');
             const info = document.getElementById('resultsInfo');
-            
+
             container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
-            
+
             try {
-                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending') ? 'All' : currentCategory}`;
+                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending')? 'All' : currentCategory}`;
                 if (currentCategory === 'HotDeals') url += '&hotDeals=true';
                 if (currentCategory === 'Trending') url += '&trending=true';
-                
+
                 const res = await fetch(url);
                 if (!res.ok) throw new Error('API error');
                 allProducts = await res.json();
@@ -507,13 +502,15 @@
                 });
 
                 renderProducts();
-                
+
             } catch (err) {
                 info.textContent = 'Error loading products';
                 container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>';
                 console.error(err);
             }
-        }        function renderProducts() {
+        }
+
+        function renderProducts() {
             const container = document.getElementById('productsContainer');
             const info = document.getElementById('resultsInfo');
             let products = [...allProducts];
@@ -691,7 +688,7 @@
                             </div>
                         </div>
                     `;
-                }                categories.forEach(cat => {
+                }categories.forEach(cat => {
                     const catProducts = Object.values(groupedProducts).filter(p => p.category === cat);
                     if (catProducts.length > 0) {
                         const rowId = `row-${cat.replace(/\s+/g, '-')}`;
@@ -717,8 +714,7 @@
                             </div>
                         `;
                     }
-                });
-            } else {
+                });            } else {
                 const rowId = 'row-filtered';
                 html = `
                     <div class="swipe-wrapper">
@@ -756,7 +752,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist
-                            ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                           ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${productId})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -891,6 +887,7 @@
                                             <div class="font-semibold text-gray-900 text-sm">${price.store}</div>
                                             <div class="text-xs text-gray-500">${price.delivery} • ${price.stock}</div>
                                         </div>
+                                    </div>
                                     <div class="text-right mr-3">
                                         <div class="text-xl font-bold text-gray-900">£${price.price}</div>
                                         ${price.oldPrice? `<div class="text-xs text-gray-400 line-through">£${price.oldPrice}</div>` : ''}
