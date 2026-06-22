@@ -6,7 +6,6 @@
     <title>PriceSnap - Global Price Comparison</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
 .store-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
 .dot-green { background: #10b981; }
@@ -49,7 +48,8 @@
 .toast.show { transform: translateX(-50%) translateY(0); }
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
-</head><body class="bg-gray-50">
+</head>
+<body class="bg-gray-50">
     <header class="bg-white sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-4 py-2">
             <div class="flex items-center justify-between">
@@ -58,7 +58,7 @@
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <span class="text-xl font-bold text-green-600 hidden">PriceSnap</span>
                 </a>
-                <nav class="flex items-center gap-5" id="navButtons">
+                <nav class="flex items-center gap-5">
                     <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
                         <i class="fa-solid fa-heart"></i>
                         <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
@@ -124,7 +124,6 @@
             </button>
             <div id="watchlistModalContent" class="p-6"></div>
         </div>
-    </div>
     <div id="authModal" class="modal-backdrop hidden" onclick="closeAuthModal(event)">
         <div class="modal-content max-w-md" onclick="event.stopPropagation()">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
@@ -140,14 +139,12 @@
                 <p id="authToggle" class="text-xs text-gray-500 text-center">
                     Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>
                 </p>
-                <p class="text-xs text-gray-400 text-center mt-3">Secure login powered by Supabase</p>
+                <p class="text-xs text-gray-400 text-center mt-3">Demo only - add Supabase/Auth0 later for real accounts</p>
             </div>
         </div>
-    <div id="toast" class="toast"></div><script>
-        const SUPABASE_URL = 'https://ecbewbncnzwvtkfbzlqm.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_9kfQjJCgy0ddc64NTbL-Zw_dsLs1W_a';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+    </div>
+    <div id="toast" class="toast"></div>
+    <script>
         let currentCategory = 'All';
         let currentSearch = '';
         let showingHotDeals = false;
@@ -162,7 +159,6 @@
         let pendingWatchlistId = null;
         let activeConditionTab = 'all';
         let authMode = 'signup';
-        let currentUser = null;
 
         try {
             favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
@@ -204,20 +200,9 @@
             ]
         };
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                currentUser = session?.user || null;
-                updateAuthUI();
-            } catch(e) {}
+        document.addEventListener('DOMContentLoaded', () => {
             updateBadges();
             loadProducts();
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                currentUser = session?.user || null;
-                updateAuthUI();
-                if (event === 'SIGNED_IN') showToast('Logged in!');
-                if (event === 'SIGNED_OUT') showToast('Logged out');
-            });
         });
 
         document.getElementById('searchBtn').addEventListener('click', () => {
@@ -243,42 +228,7 @@
             setTimeout(() => { toast.classList.remove('show'); }, 2000);
         }
 
-        function updateAuthUI() {
-            const nav = document.getElementById('navButtons');
-            if (!nav) return;
-            if (currentUser) {
-                nav.innerHTML = `
-                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-heart"></i>
-                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-eye"></i>
-                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <span class="text-gray-700 text-sm font-medium">Hi, ${currentUser.email.split('@')[0]}</span>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 text-sm font-medium">Logout</button>
-                `;
-            } else {
-                nav.innerHTML = `
-                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-heart"></i>
-                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-eye"></i>
-                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <button onclick="openAuth('login')" class="text-gray-600 hover:text-green-600 text-sm font-medium">Login</button>
-                    <button onclick="openAuth('signup')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 text-sm font-medium">Sign Up</button>
-                `;
-            }
-            updateBadges();
-        }
-
-        async function logout() {
-            await supabaseClient.auth.signOut();
-        }function setCategory(cat) {
+        function setCategory(cat) {
             currentCategory = cat;
             showingHotDeals = cat === 'HotDeals';
             showingTrending = cat === 'Trending';
@@ -428,36 +378,17 @@
             openAuth(authMode);
         }
 
-        async function handleAuth() {
-            const email = document.getElementById('authEmail').value.trim();
+        function handleAuth() {
+            const email = document.getElementById('authEmail').value;
             const pass = document.getElementById('authPassword').value;
             if (!email || !pass) {
                 showToast('Enter email and password');
                 return;
             }
-            if (!email.includes('@')) {
-                showToast('Enter a valid email');
-                return;
-            }
-            if (pass.length < 6) {
-                showToast('Password must be 6+ characters');
-                return;
-            }
-            try {
-                if (authMode === 'signup') {
-                    const { error } = await supabaseClient.auth.signUp({ email, password: pass });
-                    if (error) throw error;
-                    showToast('Check your email to confirm!');
-                } else {
-                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-                    if (error) throw error;
-                }
-                closeAuthModal();
-                document.getElementById('authEmail').value = '';
-                document.getElementById('authPassword').value = '';
-            } catch (err) {
-                showToast(err.message);
-            }
+            showToast(authMode === 'login' ? 'Logged in! (Demo)' : 'Account created! (Demo)');
+            closeAuthModal();
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
         }
 
         function closeAuthModal(event) {
@@ -474,29 +405,21 @@
             container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
             
             try {
-                let query = supabaseClient.from('products').select('*');
+                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending') ? 'All' : currentCategory}`;
+                if (currentCategory === 'HotDeals') url += '&hotDeals=true';
+                if (currentCategory === 'Trending') url += '&trending=true';
                 
-                if (currentSearch) query = query.ilike('name', `%${currentSearch}%`);
-                if (currentCategory === 'HotDeals') query = query.eq('hot_deal', true);
-                if (currentCategory === 'Trending') query = query.eq('trending', true);
-                else if (currentCategory !== 'All') query = query.eq('category', currentCategory);
-                
-                const { data, error } = await query;
-                if (error) throw error;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('API error');
+                allProducts = await res.json();
 
-                allProducts = (data || []).map(p => {
-                    const mappedP = { 
-                        ...p, 
-                        hotDeal: p.hot_deal, 
-                        price: parseFloat(p.price),
-                        oldPrice: p.old_price ? parseFloat(p.old_price) : null
-                    };
+                allProducts = allProducts.map(p => {
                     if (EBAY_AFFILIATE_LINKS[p.name]) {
-                        mappedP.prices = EBAY_AFFILIATE_LINKS[p.name].map((aff, idx) => ({
+                        const affiliatePrices = EBAY_AFFILIATE_LINKS[p.name].map((aff, idx) => ({
                             id: 999000 + idx,
                             store: aff.store,
-                            price: mappedP.price,
-                            oldPrice: mappedP.oldPrice,
+                            price: p.price,
+                            oldPrice: p.oldPrice,
                             storeStatus: aff.storeStatus,
                             url: aff.url,
                             delivery: aff.delivery,
@@ -504,18 +427,21 @@
                             btnClass: aff.btnClass,
                             condition: aff.condition
                         }));
+                        return {...p, prices: affiliatePrices };
                     }
-                    return mappedP;
+                    return p;
                 });
 
                 renderProducts();
                 
             } catch (err) {
                 info.textContent = 'Error loading products';
-                container.innerHTML = '<div class="text-center py-12 text-red-500">Database connection failed. Check your Supabase table "products" exists.</div>';
+                container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>';
                 console.error(err);
             }
-        }function renderProducts() {
+        }
+
+        function renderProducts() {
             const container = document.getElementById('productsContainer');
             const info = document.getElementById('resultsInfo');
             let products = [...allProducts];
@@ -533,7 +459,7 @@
             } else {
                 info.textContent = `Found ${products.length} deals ${currentSearch? `for "${currentSearch}"` : ''} in ${currentCategory}`;
             }
-
+            
             if (products.length === 0) {
                 container.innerHTML = '<div class="text-center py-12 text-gray-500">No products found.</div>';
                 return;
@@ -567,7 +493,7 @@
                         }
                     };
                 }
-
+                
                 if (p.prices && p.prices.length > 0) {
                     p.prices.forEach(price => {
                         groupedProducts[p.name].prices.push(price);
@@ -600,13 +526,13 @@
                 Object.keys(g.conditionGroups).forEach(cond => {
                     g.conditionGroups[cond].sort((a, b) => a.price - b.price);
                 });
-
-                const newPrices = g.conditionGroups.new.length > 0
-                   ? g.conditionGroups.new.slice(0, 3)
+                
+                const newPrices = g.conditionGroups.new.length > 0 
+                    ? g.conditionGroups.new.slice(0, 3) 
                     : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3);
-
+                
                 g.prices = newPrices;
-
+                
                 while (g.prices.length < 3) {
                     g.prices.push({
                         store: 'More stores soon',
@@ -624,7 +550,7 @@
             const categories = ['Tech', 'Gaming', 'Appliances', 'Bedroom', 'Living Room', 'Kids', 'Garden'];
             let html = '';
 
-            if (currentCategory === 'All' &&!showingFavourites &&!showingWatchlist &&!currentSearch) {
+            if (currentCategory === 'All' && !showingFavourites && !showingWatchlist && !currentSearch) {
                 const hotDealsProducts = Object.values(groupedProducts).filter(p => p.hotDeal);
                 if (hotDealsProducts.length > 0) {
                     const scrollProducts = [...hotDealsProducts,...hotDealsProducts];
@@ -670,11 +596,11 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-                   .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-                   .filter(p => p)
-                   .map(p => groupedProducts[p.name])
-                   .filter(p => p);
-
+                    .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+                    .filter(p => p)
+                    .map(p => groupedProducts[p.name])
+                    .filter(p => p);
+                
                 if (recentlyViewedProducts.length > 0) {
                     html += `
                         <div class="recently-viewed-wrapper">
@@ -693,9 +619,7 @@
                             </div>
                         </div>
                     `;
-                }
-
-                categories.forEach(cat => {
+                }categories.forEach(cat => {
                     const catProducts = Object.values(groupedProducts).filter(p => p.category === cat);
                     if (catProducts.length > 0) {
                         const rowId = `row-${cat.replace(/\s+/g, '-')}`;
@@ -738,7 +662,7 @@
                     </div>
                 `;
             }
-
+            
             container.innerHTML = html;
         }
 
@@ -753,14 +677,14 @@
             const hasRefurb = p.conditionGroups.refurbished.length > 0;
             const hasAuction = p.conditionGroups.auction.length > 0;
             const hasUsed = p.conditionGroups.used.length > 0;
-
+            
             return `
                 <div class="swipe-item bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all min-h-[380px] flex flex-col">
                     <div class="relative">
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
-                        ${showingWatchlist
-                           ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                        ${showingWatchlist 
+                            ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${productId})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -770,7 +694,7 @@
                     </div>
                     <div class="p-3 flex-1 flex flex-col">
                         <h3 class="font-semibold text-gray-900 mb-2 text-sm leading-tight">${p.name}</h3>
-
+                        
                         <div class="mb-3 flex-1">
                             <div class="text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">TOP 3 NEW PRICES</div>
                             ${p.prices.map((price, idx) => `
@@ -786,14 +710,16 @@
                                 ${hasRefurb? 'Refurbished' : ''} ${hasAuction? '• Auctions' : ''} ${hasUsed? '• Used' : ''} available
                             </div>` : ''}
                         </div>
-
+                        
                         <button onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')" class="block w-full py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-semibold text-center mt-auto">
                             View Deal <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i>
                         </button>
                     </div>
                 </div>
             `;
-        }function switchConditionTab(productName, condition) {
+        }
+
+        function switchConditionTab(productName, condition) {
             activeConditionTab = condition;
             openProductModal(productName);
         }
@@ -809,8 +735,8 @@
             addToRecentlyViewed(product.prices[0].id);
 
             const allPrices = Object.values(product.conditionGroups).flat();
-            const filteredPrices = activeConditionTab === 'all'
-              ? allPrices
+            const filteredPrices = activeConditionTab === 'all' 
+                ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
@@ -835,14 +761,14 @@
                         <div>
                             <h2 class="text-2xl font-bold text-gray-900 mb-2">${product.name}</h2>
                             <p class="text-gray-600 text-sm mb-4">${product.description}</p>
-
+                            
                             <div class="bg-blue-50 border-blue-200 rounded-lg p-4 mb-4">
                                 <div class="flex items-center gap-2 mb-2">
                                     <i class="fa-solid fa-chart-line text-blue-600"></i>
                                     <span class="font-semibold text-blue-900 text-sm">Price Prediction</span>
                                 </div>
                                 <p class="text-sm text-blue-800">
-                                    Our AI predicts this will drop to <span class="font-bold">£${predictedPrice}</span> next month
+                                    Our AI predicts this will drop to <span class="font-bold">£${predictedPrice}</span> next month 
                                     <span class="text-green-600 font-semibold">(Save £${saving})</span>
                                 </p>
                                 <p class="text-xs text-blue-600 mt-1">Based on 6-month price history across 18 stores</p>
@@ -857,27 +783,27 @@
 
                     <div class="border-t pt-4">
                         <div class="condition-tabs">
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'all')"
+                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'all')" 
                                     class="condition-tab ${activeConditionTab === 'all'? 'active' : ''}">
                                 All <span class="tab-count">${tabCounts.all}</span>
                             </button>
                             ${tabCounts.new > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'new')"
+                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'new')" 
                                     class="condition-tab ${activeConditionTab === 'new'? 'active' : ''}">
                                 New <span class="tab-count">${tabCounts.new}</span>
                             </button>` : ''}
                             ${tabCounts.used > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'used')"
+                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'used')" 
                                     class="condition-tab ${activeConditionTab === 'used'? 'active' : ''}">
                                 Used <span class="tab-count">${tabCounts.used}</span>
                             </button>` : ''}
                             ${tabCounts.refurbished > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'refurbished')"
+                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'refurbished')" 
                                     class="condition-tab ${activeConditionTab === 'refurbished'? 'active' : ''}">
                                 Refurbished <span class="tab-count">${tabCounts.refurbished}</span>
                             </button>` : ''}
                             ${tabCounts.auction > 0? `
-                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'auction')"
+                            <button onclick="switchConditionTab('${productName.replace(/'/g, "\\'")}', 'auction')" 
                                     class="condition-tab ${activeConditionTab === 'auction'? 'active' : ''}">
                                 Auction <span class="tab-count">${tabCounts.auction}</span>
                             </button>` : ''}
