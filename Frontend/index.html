@@ -55,7 +55,7 @@
         <div class="max-w-7xl mx-auto px-4 py-2">
             <div class="flex items-center justify-between">
                 <a href="/" onclick="resetHome(event)" class="flex items-center gap-2">
-                    <img src="pricesnap-logo.png" alt="PriceSnap" class="h-14" 
+                    <img src="pricesnap-logo.png" alt="PriceSnap" class="h-14"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <span class="text-xl font-bold text-green-600 hidden">PriceSnap</span>
                 </a>
@@ -73,68 +73,266 @@
                 </nav>
             </div>
         </div>
-    </header><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PriceSnap - Global Price Comparison</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-.store-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
-.dot-green { background: #10b981; }
-.dot-orange { background: #f59e0b; }
-.dot-red { background: #ef4444; }
-.dot-gray { background: #9ca3af; }
-.condition-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid #e5e7eb; margin-bottom: 1rem; overflow-x: auto; }
-.condition-tab { padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; background: transparent; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.condition-tab:hover { color: #10b981; }
-.condition-tab.active { color: #10b981; border-bottom-color: #10b981; }
-.condition-tab .tab-count { background: #f3f4f6; color: #6b7280; font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 9999px; margin-left: 0.375rem; }
-.condition-tab.active .tab-count { background: #d1fae5; color: #059669; }
-.hot-deals-wrapper { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px solid #fca5a5; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(239, 68, 0.15); }
-.trending-wrapper { background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); border: 2px solid #facc15; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.25); }
-.recently-viewed-wrapper { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #7dd3fc; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15); }
-.category-section { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-260px * 5 - 1.5rem * 5)); } }
-.hot-deals-scroll,.trending-scroll { display: flex; gap: 1.5rem; animation: scroll 35s linear infinite; }
-.hot-deals-scroll:hover,.trending-scroll:hover { animation-play-state: paused; }
-.recently-scroll { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; }
-.recently-scroll::-webkit-scrollbar { height: 6px; }
-.recently-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-.swipe-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 1.5rem; padding: 0.5rem 0 1rem 0; scrollbar-width: none; }
-.swipe-container::-webkit-scrollbar { display: none; }
-.swipe-item { flex: 0 0 260px; scroll-snap-align: start; }
-@media (max-width: 640px) {.swipe-item { flex: 0 0 80%; } }
-.swipe-wrapper { position: relative; }
-.swipe-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: white; border: 1px solid #e5e7eb; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.swipe-arrow:hover { background: #10b981; color: white; }
-.swipe-arrow.left { left: -18px; }
-.swipe-arrow.right { right: -18px; }
-@media (max-width: 768px) {.swipe-arrow { display: none; } }
-.modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.modal-content { background: white; border-radius: 16px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
-.ebay-btn-new { background: #10b981; }
-.ebay-btn-refurb { background: #3b82f6; }
-.ebay-btn-auction { background: #f59e0b; }
-.ebay-btn-used { background: #6366f1; }
-.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 200; transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-.toast.show { transform: translateX(-50%) translateY(0); }
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    </style>
-</head>
-<body class="bg-gray-50">
-    <header class="bg-white sticky top-0 z-50 border-b">
-        <div class="max-w-7xl mx-auto px-4 py-2">
-            <div class="flex items-center justify-between">
-                <a href="/" onclick="resetHome(event)" class="flex items-center gap-2">
-                    <img src="pricesnap-logo.png" alt="PriceSnap" class="h-14" 
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <span class="text-xl font-bold text-green-600 hidden">PriceSnap</span>
-                </a>
-                <nav class="flex items-center gap-5" id="navButtons">
+    </header><section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
+                Find the <span class="text-green-600">cheapest price</span> anywhere
+            </h1>
+            <p class="text-gray-600 mb-4 text-sm md:text-base max-w-2xl mx-auto">
+                We scan <span class="font-semibold text-gray-900">200+ stores worldwide</span> in seconds. Live price drops. You save big.
+            </p>
+            <div class="flex gap-0 mb-4 shadow-lg rounded-lg max-w-2xl mx-auto">
+                <input type="text" id="searchInput" placeholder="Search iPhone, PS5, Dyson, Nike..." class="flex-1 px-4 py-2.5 border-0 rounded-l-lg focus:ring-2 focus:ring-green-500 text-sm">
+                <button id="searchBtn" class="px-5 py-2.5 bg-green-600 text-white font-bold rounded-r-lg hover:bg-green-700 transition text-sm">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                </button>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="setCategory('All')" class="category-btn px-3 py-1 rounded-full border bg-green-600 text-white text-xs font-medium" data-cat="All">All</button>
+                <button onclick="setCategory('HotDeals')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="HotDeals">
+                    <i class="fa-solid fa-fire mr-1"></i> Hot Deals <span id="hotDealsBadge" class="ml-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs hidden">0</span>
+                </button>
+                <button onclick="setCategory('Trending')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Trending">
+                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> Trending <span id="trendingBadge" class="ml-1 bg-yellow-500 text-white px-2 py-0.5 rounded-full text-xs hidden">0</span>
+                </button>
+                <button onclick="setCategory('Tech')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Tech">Tech</button>
+                <button onclick="setCategory('Gaming')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Gaming">Gaming</button>
+                <button onclick="setCategory('Appliances')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Appliances">Appliances</button>
+                <button onclick="setCategory('Bedroom')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Bedroom">Bedroom</button>
+                <button onclick="setCategory('Living Room')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Living Room">Living Room</button>
+                <button onclick="setCategory('Kids')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Kids">Kids</button>
+                <button onclick="setCategory('Garden')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Garden">Garden</button>
+            </div>
+        </div>
+    </section>
+    <section class="max-w-7xl mx-auto px-4 py-4">
+        <div id="resultsInfo" class="text-gray-600 mb-3 font-medium text-sm">Loading deals...</div>
+        <div id="productsContainer"></div>
+    </section>
+    <div id="productModal" class="modal-backdrop hidden" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+    <div id="watchlistModal" class="modal-backdrop hidden" onclick="closeWatchlistModal(event)">
+        <div class="modal-content max-w-sm" onclick="event.stopPropagation()">
+            <button onclick="closeWatchlistModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="watchlistModalContent" class="p-6"></div>
+        </div>
+    </div>
+    <div id="authModal" class="modal-backdrop hidden" onclick="closeAuthModal(event)">
+        <div class="modal-content max-w-md" onclick="event.stopPropagation()">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="p-6">
+                <h2 id="authTitle" class="text-2xl font-bold text-gray-900 mb-4">Sign Up</h2>
+                <input type="email" id="authEmail" placeholder="Email" class="w-full px-4 py-2 border rounded-lg mb-3 text-sm focus:ring-2 focus:ring-green-500">
+                <input type="password" id="authPassword" placeholder="Password" class="w-full px-4 py-2 border rounded-lg mb-4 text-sm focus:ring-2 focus:ring-green-500">
+                <button onclick="handleAuth()" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm mb-3">
+                    Continue
+                </button>
+                <p id="authToggle" class="text-xs text-gray-500 text-center">
+                    Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>
+                </p>
+                <p class="text-xs text-gray-400 text-center mt-3">Secure login powered by Supabase</p>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div><section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
+                Find the <span class="text-green-600">cheapest price</span> anywhere
+            </h1>
+            <p class="text-gray-600 mb-4 text-sm md:text-base max-w-2xl mx-auto">
+                We scan <span class="font-semibold text-gray-900">200+ stores worldwide</span> in seconds. Live price drops. You save big.
+            </p>
+            <div class="flex gap-0 mb-4 shadow-lg rounded-lg max-w-2xl mx-auto">
+                <input type="text" id="searchInput" placeholder="Search iPhone, PS5, Dyson, Nike..." class="flex-1 px-4 py-2.5 border-0 rounded-l-lg focus:ring-2 focus:ring-green-500 text-sm">
+                <button id="searchBtn" class="px-5 py-2.5 bg-green-600 text-white font-bold rounded-r-lg hover:bg-green-700 transition text-sm">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                </button>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="setCategory('All')" class="category-btn px-3 py-1 rounded-full border bg-green-600 text-white text-xs font-medium" data-cat="All">All</button>
+                <button onclick="setCategory('HotDeals')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="HotDeals">
+                    <i class="fa-solid fa-fire mr-1"></i> Hot Deals <span id="hotDealsBadge" class="ml-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs hidden">0</span>
+                </button>
+                <button onclick="setCategory('Trending')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Trending">
+                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> Trending <span id="trendingBadge" class="ml-1 bg-yellow-500 text-white px-2 py-0.5 rounded-full text-xs hidden">0</span>
+                </button>
+                <button onclick="setCategory('Tech')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Tech">Tech</button>
+                <button onclick="setCategory('Gaming')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Gaming">Gaming</button>
+                <button onclick="setCategory('Appliances')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Appliances">Appliances</button>
+                <button onclick="setCategory('Bedroom')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Bedroom">Bedroom</button>
+                <button onclick="setCategory('Living Room')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Living Room">Living Room</button>
+                <button onclick="setCategory('Kids')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Kids">Kids</button>
+                <button onclick="setCategory('Garden')" class="category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium" data-cat="Garden">Garden</button>
+            </div>
+        </div>
+    </section>
+    <section class="max-w-7xl mx-auto px-4 py-4">
+        <div id="resultsInfo" class="text-gray-600 mb-3 font-medium text-sm">Loading deals...</div>
+        <div id="productsContainer"></div>
+    </section>
+    <div id="productModal" class="modal-backdrop hidden" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+    <div id="watchlistModal" class="modal-backdrop hidden" onclick="closeWatchlistModal(event)">
+        <div class="modal-content max-w-sm" onclick="event.stopPropagation()">
+            <button onclick="closeWatchlistModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="watchlistModalContent" class="p-6"></div>
+        </div>
+    </div>
+    <div id="authModal" class="modal-backdrop hidden" onclick="closeAuthModal(event)">
+        <div class="modal-content max-w-md" onclick="event.stopPropagation()">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="p-6">
+                <h2 id="authTitle" class="text-2xl font-bold text-gray-900 mb-4">Sign Up</h2>
+                <input type="email" id="authEmail" placeholder="Email" class="w-full px-4 py-2 border rounded-lg mb-3 text-sm focus:ring-2 focus:ring-green-500">
+                <input type="password" id="authPassword" placeholder="Password" class="w-full px-4 py-2 border rounded-lg mb-4 text-sm focus:ring-2 focus:ring-green-500">
+                <button onclick="handleAuth()" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm mb-3">
+                    Continue
+                </button>
+                <p id="authToggle" class="text-xs text-gray-500 text-center">
+                    Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>
+                </p>
+                <p class="text-xs text-gray-400 text-center mt-3">Secure login powered by Supabase</p>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div><script>
+        const SUPABASE_URL = 'https://ecbewbncnzwvtkfbzlqm.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_9kfQjJCgy0ddc64NTbL-Zw_dsLs1W_a';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentCategory = 'All';
+        let currentSearch = '';
+        let showingHotDeals = false;
+        let showingTrending = false;
+        let showingFavourites = false;
+        let showingWatchlist = false;
+        let favourites = [];
+        let watchlist = [];
+        let recentlyViewedIds = [];
+        let allProducts = [];
+        let groupedProducts = {};
+        let pendingWatchlistId = null;
+        let activeConditionTab = 'all';
+        let authMode = 'signup';
+        let currentUser = null;
+
+        try {
+            favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+            watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+            recentlyViewedIds = JSON.parse(localStorage.getItem('recentlyViewedIds') || '[]');
+        } catch(e) {
+            console.warn('localStorage blocked:', e);
+        }
+
+        const EBAY_AFFILIATE_LINKS = {
+            'iPhone 15 Pro 256GB': [
+                {
+                    store: 'eBay - New',
+                    url: 'https://www.ebay.co.uk/sch/i.html?_nkw=iphone+15+pro+256gb&LH_BIN=1&LH_ItemCondition=1000&LH_PrefLoc=1&mkcid=1&mkrid=710-53481-19255-0&siteid=3&campid=5339157410&customid=pricesnapiphone15pronew&toolid=10001&mkevt=1',
+                    storeStatus: 'green',
+                    delivery: '1-3 days',
+                    stock: 'Buy It Now',
+                    btnClass: 'ebay-btn-new',
+                    condition: 'new'
+                },
+                {
+                    store: 'eBay - Refurbished',
+                    url: 'https://www.ebay.co.uk/sch/i.html?_nkw=iphone+15+pro+256gb&LH_BIN=1&LH_ItemCondition=2000|2010|2020|2030&LH_PrefLoc=1&mkcid=1&mkrid=710-53481-19255-0&siteid=3&campid=5339157410&customid=pricesnapiphone15prorefurb&toolid=10001&mkevt=1',
+                    storeStatus: 'green',
+                    delivery: '2-4 days',
+                    stock: 'Certified Refurb',
+                    btnClass: 'ebay-btn-refurb',
+                    condition: 'refurbished'
+                },
+                {
+                    store: 'eBay - Auctions',
+                    url: 'https://www.ebay.co.uk/sch/i.html?_nkw=iphone+15+pro+256gb&LH_Auction=1&LH_PrefLoc=1&mkcid=1&mkrid=710-53481-19255-0&siteid=3&campid=5339157410&customid=pricesnapiphone15proauction&toolid=10001&mkevt=1',
+                    storeStatus: 'orange',
+                    delivery: 'Auction ends soon',
+                    stock: 'Bid Now',
+                    btnClass: 'ebay-btn-auction',
+                    condition: 'auction'
+                }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                currentUser = session?.user || null;
+                updateAuthUI();
+            } catch(e) {}
+            updateBadges();
+            loadProducts();
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                currentUser = session?.user || null;
+                updateAuthUI();
+                if (event === 'SIGNED_IN') showToast('Logged in!');
+                if (event === 'SIGNED_OUT') showToast('Logged out');
+            });
+        });
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            currentSearch = document.getElementById('searchInput').value;
+            showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
+            resetConditionTab();
+            loadProducts();
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentSearch = document.getElementById('searchInput').value;
+                showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
+                resetConditionTab();
+                loadProducts();
+            }
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        function updateAuthUI() {
+            const nav = document.getElementById('navButtons');
+            if (!nav) return;
+            if (currentUser) {
+                nav.innerHTML = `
+                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
+                        <i class="fa-solid fa-eye"></i>
+                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <span class="text-gray-700 text-sm font-medium">Hi, ${currentUser.email.split('@')[0]}</span>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 text-sm font-medium">Logout</button>
+                `;
+            } else {
+                nav.innerHTML = `
                     <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
                         <i class="fa-solid fa-heart"></i>
                         <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
@@ -145,10 +343,14 @@
                     </button>
                     <button onclick="openAuth('login')" class="text-gray-600 hover:text-green-600 text-sm font-medium">Login</button>
                     <button onclick="openAuth('signup')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 text-sm font-medium">Sign Up</button>
-                </nav>
-            </div>
-        </div>
-    </header>function setCategory(cat) {
+                `;
+            }
+            updateBadges();
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+        }function setCategory(cat) {
             currentCategory = cat;
             showingHotDeals = cat === 'HotDeals';
             showingTrending = cat === 'Trending';
@@ -358,7 +560,6 @@
                     const mappedP = { 
                         ...p, 
                         hotDeal: p.hot_deal, 
-                        oldPrice: p.old_price,
                         price: parseFloat(p.price),
                         oldPrice: p.old_price ? parseFloat(p.old_price) : null
                     };
@@ -473,7 +674,7 @@
                 });
 
                 const newPrices = g.conditionGroups.new.length > 0
-                   ? g.conditionGroups.new.slice(0, 3)
+                 ? g.conditionGroups.new.slice(0, 3)
                     : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3);
 
                 g.prices = newPrices;
@@ -541,10 +742,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-                   .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-                   .filter(p => p)
-                   .map(p => groupedProducts[p.name])
-                   .filter(p => p);
+                 .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+                 .filter(p => p)
+                 .map(p => groupedProducts[p.name])
+                 .filter(p => p);
 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -631,7 +832,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist
-                           ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                         ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${productId})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
