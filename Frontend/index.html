@@ -6,6 +6,7 @@
     <title>PriceSnap - Global Price Comparison</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
 .store-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
 .dot-green { background: #10b981; }
@@ -58,7 +59,7 @@
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <span class="text-xl font-bold text-green-600 hidden">PriceSnap</span>
                 </a>
-                <nav class="flex items-center gap-5">
+                <nav class="flex items-center gap-5" id="navButtons">
                     <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
                         <i class="fa-solid fa-heart"></i>
                         <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
@@ -67,13 +68,12 @@
                         <i class="fa-solid fa-eye"></i>
                         <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                     </button>
-                    <button onclick="openAuth('login')" class="text-gray-600 hover:text-green-600 text-sm font-medium">Login</button>
-                    <button onclick="openAuth('signup')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 text-sm font-medium">Sign Up</button>
+                    <button onclick="openAuth('login')" class="text-gray-600 hover:text-green-600 text-sm font-medium" id="loginBtn">Login</button>
+                    <button onclick="openAuth('signup')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 text-sm font-medium" id="signupBtn">Sign Up</button>
                 </nav>
             </div>
         </div>
-    </header>
-    <section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
+    </header><section class="bg-gradient-to-r from-green-50 to-blue-50 py-5">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2 leading-tight">
                 Find the <span class="text-green-600">cheapest price</span> anywhere
@@ -124,6 +124,7 @@
             </button>
             <div id="watchlistModalContent" class="p-6"></div>
         </div>
+    </div>
     <div id="authModal" class="modal-backdrop hidden" onclick="closeAuthModal(event)">
         <div class="modal-content max-w-md" onclick="event.stopPropagation()">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
@@ -133,18 +134,22 @@
                 <h2 id="authTitle" class="text-2xl font-bold text-gray-900 mb-4">Sign Up</h2>
                 <input type="email" id="authEmail" placeholder="Email" class="w-full px-4 py-2 border rounded-lg mb-3 text-sm focus:ring-2 focus:ring-green-500">
                 <input type="password" id="authPassword" placeholder="Password" class="w-full px-4 py-2 border rounded-lg mb-4 text-sm focus:ring-2 focus:ring-green-500">
-                <button onclick="handleAuth()" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm mb-3">
+                <button onclick="handleAuth()" id="authBtn" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm mb-3">
                     Continue
                 </button>
                 <p id="authToggle" class="text-xs text-gray-500 text-center">
                     Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>
                 </p>
-                <p class="text-xs text-gray-400 text-center mt-3">Demo only - add Supabase/Auth0 later for real accounts</p>
             </div>
         </div>
     </div>
     <div id="toast" class="toast"></div>
     <script>
+        // Supabase Setup - YOUR KEYS
+        const SUPABASE_URL = 'https://ecbewbncnzwxfbzlqm.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_9kfQjJCgy0ddc64NTbL-Zw_dsLs1W_a';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         let currentCategory = 'All';
         let currentSearch = '';
         let showingHotDeals = false;
@@ -159,6 +164,7 @@
         let pendingWatchlistId = null;
         let activeConditionTab = 'all';
         let authMode = 'signup';
+        let currentUser = null;
 
         try {
             favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
@@ -198,11 +204,19 @@
                     condition: 'auction'
                 }
             ]
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
+        };document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            currentUser = session?.user || null;
+            updateAuthUI();
             updateBadges();
             loadProducts();
+            
+            supabase.auth.onAuthStateChange((event, session) => {
+                currentUser = session?.user || null;
+                updateAuthUI();
+                if (event === 'SIGNED_IN') showToast('Logged in!');
+                if (event === 'SIGNED_OUT') showToast('Logged out');
+            });
         });
 
         document.getElementById('searchBtn').addEventListener('click', () => {
@@ -226,6 +240,113 @@
             toast.textContent = msg;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        function updateAuthUI() {
+            const nav = document.getElementById('navButtons');
+            if (currentUser) {
+                nav.innerHTML = `
+                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
+                        <i class="fa-solid fa-eye"></i>
+                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <span class="text-gray-700 text-sm font-medium">Hi, ${currentUser.email.split('@')[0]}</span>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 text-sm font-medium">Logout</button>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
+                        <i class="fa-solid fa-eye"></i>
+                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button onclick="openAuth('login')" class="text-gray-600 hover:text-green-600 text-sm font-medium" id="loginBtn">Login</button>
+                    <button onclick="openAuth('signup')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 text-sm font-medium" id="signupBtn">Sign Up</button>
+                `;
+            }
+            updateBadges();
+        }
+
+        function openAuth(type) {
+            authMode = type;
+            document.getElementById('authTitle').textContent = type === 'login' ? 'Login' : 'Sign Up';
+            document.getElementById('authToggle').innerHTML = type === 'login' 
+                ? `Don't have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Sign Up</button>`
+                : `Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>`;
+            document.getElementById('authModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function switchAuthMode() {
+            authMode = authMode === 'login' ? 'signup' : 'login';
+            openAuth(authMode);
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPassword').value;
+            
+            if (!email || !pass) {
+                showToast('Enter email and password');
+                return;
+            }
+            if (!email.includes('@')) {
+                showToast('Enter a valid email');
+                return;
+            }
+            if (pass.length < 6) {
+                showToast('Password must be 6+ characters');
+                return;
+            }
+
+            const authBtn = document.getElementById('authBtn');
+            authBtn.disabled = true;
+            authBtn.textContent = 'Loading...';
+
+            try {
+                if (authMode === 'signup') {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: pass,
+                    });
+                    if (error) throw error;
+                    showToast('Check your email to confirm account!');
+                } else {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: pass,
+                    });
+                    if (error) throw error;
+                }
+                closeAuthModal();
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+            } catch (error) {
+                showToast(error.message);
+            } finally {
+                authBtn.disabled = false;
+                authBtn.textContent = 'Continue';
+            }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            updateAuthUI();
+        }
+
+        function closeAuthModal(event) {
+            if (!event || event.target.id === 'authModal') {
+                document.getElementById('authModal').classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
         }
 
         function setCategory(cat) {
@@ -308,10 +429,8 @@
             document.getElementById('watchlistModalContent').innerHTML = modalHtml;
             document.getElementById('watchlistModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-        }
-
-        function confirmWatchlistAdd() {
-            if (pendingWatchlistId && !watchlist.includes(pendingWatchlistId)) {
+        }function confirmWatchlistAdd() {
+            if (pendingWatchlistId &&!watchlist.includes(pendingWatchlistId)) {
                 watchlist.push(pendingWatchlistId);
                 try {
                     localStorage.setItem('watchlist', JSON.stringify(watchlist));
@@ -346,7 +465,7 @@
         }
 
         function addToRecentlyViewed(productId) {
-            recentlyViewedIds = recentlyViewedIds.filter(id => id !== productId);
+            recentlyViewedIds = recentlyViewedIds.filter(id => id!== productId);
             recentlyViewedIds.unshift(productId);
             recentlyViewedIds = recentlyViewedIds.slice(0, 10);
             try {
@@ -357,44 +476,15 @@
         }
 
         function updateBadges() {
-            document.getElementById('favBadge').textContent = favourites.length;
-            document.getElementById('favBadge').classList.toggle('hidden', favourites.length === 0);
-            document.getElementById('watchBadge').textContent = watchlist.length;
-            document.getElementById('watchBadge').classList.toggle('hidden', watchlist.length === 0);
-        }
-
-        function openAuth(type) {
-            authMode = type;
-            document.getElementById('authTitle').textContent = type === 'login' ? 'Login' : 'Sign Up';
-            document.getElementById('authToggle').innerHTML = type === 'login' 
-                ? `Don't have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Sign Up</button>`
-                : `Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>`;
-            document.getElementById('authModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function switchAuthMode() {
-            authMode = authMode === 'login' ? 'signup' : 'login';
-            openAuth(authMode);
-        }
-
-        function handleAuth() {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPassword').value;
-            if (!email || !pass) {
-                showToast('Enter email and password');
-                return;
+            const favBadge = document.getElementById('favBadge');
+            const watchBadge = document.getElementById('watchBadge');
+            if (favBadge) {
+                favBadge.textContent = favourites.length;
+                favBadge.classList.toggle('hidden', favourites.length === 0);
             }
-            showToast(authMode === 'login' ? 'Logged in! (Demo)' : 'Account created! (Demo)');
-            closeAuthModal();
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-        }
-
-        function closeAuthModal(event) {
-            if (!event || event.target.id === 'authModal') {
-                document.getElementById('authModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
+            if (watchBadge) {
+                watchBadge.textContent = watchlist.length;
+                watchBadge.classList.toggle('hidden', watchlist.length === 0);
             }
         }
 
@@ -405,7 +495,7 @@
             container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
             
             try {
-                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending') ? 'All' : currentCategory}`;
+                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending')? 'All' : currentCategory}`;
                 if (currentCategory === 'HotDeals') url += '&hotDeals=true';
                 if (currentCategory === 'Trending') url += '&trending=true';
                 
@@ -520,15 +610,13 @@
                         groupedProducts[p.name].conditionGroups[priceObj.condition].push(priceObj);
                     }
                 }
-            });
-
-            Object.values(groupedProducts).forEach(g => {
+            });Object.values(groupedProducts).forEach(g => {
                 Object.keys(g.conditionGroups).forEach(cond => {
-                    g.conditionGroups[cond].sort((a, b) => a.price - b.price);
+                    g.conditionGroups.sort((a, b) => a.price - b.price);
                 });
                 
                 const newPrices = g.conditionGroups.new.length > 0 
-                    ? g.conditionGroups.new.slice(0, 3) 
+                   ? g.conditionGroups.new.slice(0, 3) 
                     : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3);
                 
                 g.prices = newPrices;
@@ -550,7 +638,7 @@
             const categories = ['Tech', 'Gaming', 'Appliances', 'Bedroom', 'Living Room', 'Kids', 'Garden'];
             let html = '';
 
-            if (currentCategory === 'All' && !showingFavourites && !showingWatchlist && !currentSearch) {
+            if (currentCategory === 'All' &&!showingFavourites &&!showingWatchlist &&!currentSearch) {
                 const hotDealsProducts = Object.values(groupedProducts).filter(p => p.hotDeal);
                 if (hotDealsProducts.length > 0) {
                     const scrollProducts = [...hotDealsProducts,...hotDealsProducts];
@@ -596,10 +684,10 @@
                 }
 
                 const recentlyViewedProducts = recentlyViewedIds
-                    .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
-                    .filter(p => p)
-                    .map(p => groupedProducts[p.name])
-                    .filter(p => p);
+                  .map(id => allProducts.find(p => p.id === id || (p.prices && p.prices.some(price => price.id === id))))
+                  .filter(p => p)
+                  .map(p => groupedProducts[p.name])
+                  .filter(p => p);
                 
                 if (recentlyViewedProducts.length > 0) {
                     html += `
@@ -619,7 +707,9 @@
                             </div>
                         </div>
                     `;
-                }categories.forEach(cat => {
+                }
+
+                categories.forEach(cat => {
                     const catProducts = Object.values(groupedProducts).filter(p => p.category === cat);
                     if (catProducts.length > 0) {
                         const rowId = `row-${cat.replace(/\s+/g, '-')}`;
@@ -684,7 +774,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
                         ${showingWatchlist 
-                            ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
+                           ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist">
                                 <i class="fa-solid fa-xmark text-sm"></i>
                                </button>`
                             : `<button onclick="toggleFavourite(${productId})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition">
@@ -717,9 +807,7 @@
                     </div>
                 </div>
             `;
-        }
-
-        function switchConditionTab(productName, condition) {
+        }function switchConditionTab(productName, condition) {
             activeConditionTab = condition;
             openProductModal(productName);
         }
@@ -736,7 +824,7 @@
 
             const allPrices = Object.values(product.conditionGroups).flat();
             const filteredPrices = activeConditionTab === 'all' 
-                ? allPrices 
+              ? allPrices 
                 : product.conditionGroups[activeConditionTab] || [];
 
             const sortedFiltered = [...filteredPrices].sort((a,b) => a.price - b.price);
@@ -819,6 +907,7 @@
                                             <div class="font-semibold text-gray-900 text-sm">${price.store}</div>
                                             <div class="text-xs text-gray-500">${price.delivery} • ${price.stock}</div>
                                         </div>
+                                    </div>
                                     <div class="text-right mr-3">
                                         <div class="text-xl font-bold text-gray-900">£${price.price}</div>
                                         ${price.oldPrice? `<div class="text-xs text-gray-400 line-through">£${price.oldPrice}</div>` : ''}
