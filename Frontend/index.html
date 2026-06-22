@@ -6,64 +6,61 @@
     <title>PriceSnap - Global Price Comparison</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* [KEEP YOUR ORIGINAL CSS HERE] */
-        .store-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
+        .store-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
         .dot-green { background: #10b981; }
-        .dot-orange { background: #f59e0b; }
-        .dot-red { background: #ef4444; }
-        .dot-gray { background: #9ca3af; }
-        .condition-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid #e5e7eb; margin-bottom: 1rem; overflow-x: auto; }
-        .condition-tab { padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; background: transparent; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-        .condition-tab:hover { color: #10b981; }
-        .condition-tab.active { color: #10b981; border-bottom-color: #10b981; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 200; transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- [YOUR ORIGINAL HTML BODY CONTENT GOES HERE] -->
-    
+    <div id="productsContainer" class="p-6">
+        <div class="text-center py-12 text-gray-500">Loading deals...</div>
+    </div>
+
     <script>
-        // REPLACE THESE WITH YOUR KEYS FROM SUPABASE SETTINGS
+        // 1. Setup Supabase
         const SUPABASE_URL = 'https://ecbewbncnzwvtkfbzlqm.supabase.co';
-        const SUPABASE_KEY = 'YOUR_PUBLISHABLE_KEY_HERE'; 
+        const SUPABASE_KEY = 'YOUR_PUBLISHABLE_KEY_HERE'; // PASTE YOUR PUBLISHABLE KEY HERE
 
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let currentCategory = 'All';
-        let currentSearch = '';
         let allProducts = [];
-        let favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
-        let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
 
+        // 2. Load Products from Supabase
         async function loadProducts() {
             const container = document.getElementById('productsContainer');
-            const info = document.getElementById('resultsInfo');
-            
-            container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading deals...</div>';
             
             try {
-                let query = supabase.from('products').select('*');
+                const { data, error } = await supabase.from('products').select('*');
                 
-                if (currentSearch) query = query.ilike('name', `%${currentSearch}%`);
-                if (currentCategory !== 'All') query = query.eq('category', currentCategory);
-                
-                const { data, error } = await query;
                 if (error) throw error;
-
+                
                 allProducts = data || [];
                 renderProducts();
             } catch (err) {
-                console.error("Supabase Error:", err);
-                container.innerHTML = '<div class="text-center py-12 text-red-500">Database load failed.</div>';
+                console.error("Error:", err);
+                container.innerHTML = '<div class="text-center text-red-500">Failed to load products.</div>';
             }
         }
 
-        // [PASTE THE REST OF YOUR ORIGINAL JS FUNCTIONS HERE]
-        document.addEventListener('DOMContentLoaded', loadProducts);
+        // 3. Render function
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+            if (allProducts.length === 0) {
+                container.innerHTML = '<div class="text-center">No products found.</div>';
+                return;
+            }
+
+            container.innerHTML = allProducts.map(p => `
+                <div class="bg-white p-4 rounded shadow mb-4">
+                    <h2 class="text-xl font-bold">${p.name}</h2>
+                    <p class="text-green-600 font-semibold">£${p.price}</p>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        loadProducts();
     </script>
 </body>
 </html>
