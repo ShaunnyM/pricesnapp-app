@@ -1,11 +1,18 @@
 export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
-  
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   const { search = '', category = 'All', hotDeals, trending } = req.query;
 
   const products = [
     {
+      id: 1,
       name: "Apple iPhone 15 Pro 128GB",
       image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400",
       category: "Tech",
@@ -22,6 +29,7 @@ export default function handler(req, res) {
       bnpl: true
     },
     {
+      id: 2,
       name: "Apple iPhone 15 Pro 128GB",
       image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400",
       category: "Tech",
@@ -38,6 +46,7 @@ export default function handler(req, res) {
       bnpl: false
     },
     {
+      id: 3,
       name: "Apple iPhone 15 Pro 128GB",
       image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400",
       category: "Tech",
@@ -54,6 +63,7 @@ export default function handler(req, res) {
       bnpl: false
     },
     {
+      id: 4,
       name: "Sony PlayStation 5 Console",
       image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400",
       category: "Gaming",
@@ -70,6 +80,7 @@ export default function handler(req, res) {
       bnpl: true
     },
     {
+      id: 5,
       name: "Sony PlayStation 5 Console",
       image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400",
       category: "Gaming",
@@ -86,6 +97,7 @@ export default function handler(req, res) {
       bnpl: true
     },
     {
+      id: 6,
       name: "Sony PlayStation 5 Console",
       image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400",
       category: "Gaming",
@@ -102,6 +114,7 @@ export default function handler(req, res) {
       bnpl: false
     },
     {
+      id: 7,
       name: "Dyson V15 Detect Vacuum",
       image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400",
       category: "Appliances",
@@ -118,6 +131,7 @@ export default function handler(req, res) {
       bnpl: false
     },
     {
+      id: 8,
       name: "Dyson V15 Detect Vacuum",
       image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400",
       category: "Appliances",
@@ -134,6 +148,24 @@ export default function handler(req, res) {
       bnpl: true
     },
     {
+      id: 9,
+      name: "Dyson V15 Detect Vacuum",
+      image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400",
+      category: "Appliances",
+      description: "Most powerful cordless vacuum with laser dust detection and LCD screen.",
+      hotDeal: false,
+      trending: false,
+      store: "eBay - Auction",
+      price: 450,
+      oldPrice: null,
+      stock: "Bidding",
+      link: "https://ebay.co.uk",
+      deliveryTime: "Auction ends 2d",
+      condition: "auction",
+      bnpl: false
+    },
+    {
+      id: 10,
       name: "Nike Air Max 270 Trainers",
       image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
       category: "Kids",
@@ -150,6 +182,7 @@ export default function handler(req, res) {
       bnpl: true
     },
     {
+      id: 11,
       name: "IKEA Malm Bed Frame Double",
       image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=400",
       category: "Bedroom",
@@ -166,6 +199,7 @@ export default function handler(req, res) {
       bnpl: false
     },
     {
+      id: 12,
       name: "Samsung 55\" QLED 4K TV",
       image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400",
       category: "Living Room",
@@ -182,6 +216,7 @@ export default function handler(req, res) {
       bnpl: true
     },
     {
+      id: 13,
       name: "Weber Spirit II BBQ",
       image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400",
       category: "Garden",
