@@ -1,14 +1,17 @@
 {
-  "devDependencies": {
-    "nodemon": "^3.1.14",
-    "tsx": "^4.22.4"
+  "name": "pricesnap",
+  "version": "1.0.0",
+  "description": "PriceSnap - Global Price Comparison",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build step'",
+    "start": "vercel"
   },
-  "dependencies": {
-    "axios": "^1.18.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "mongoose": "^9.7.0",
-    "node-cache": "^5.1.2"
+  "keywords": ["pricesnap", "price-comparison"],
+  "author": "PriceSnap",
+  "license": "ISC",
+  "engines": {
+    "node": "18.x"
   }
 }
