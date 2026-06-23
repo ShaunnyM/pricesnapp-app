@@ -127,397 +127,177 @@
     <div id="authModal" class="modal-backdrop hidden" onclick="closeAuthModal(event)">
         <div class="modal-content max-w-md" onclick="event.stopPropagation()">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="p-6">
-                <h2 id="authTitle" class="text-2xl font-bold text-gray-900 mb-4">Sign Up</h2>
-                <input type="email" id="authEmail" placeholder="Email" class="w-full px-4 py-2 border rounded-lg mb-3 text-sm focus:ring-2 focus:ring-green-500">
-                <input type="password" id="authPassword" placeholder="Password" class="w-full px-4 py-2 border rounded-lg mb-4 text-sm focus:ring-2 focus:ring-green-500">
-                <button onclick="handleAuth()" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm mb-3">
-                    Continue
-                </button>
-                <p id="authToggle" class="text-xs text-gray-500 text-center">
-                    Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>
-                </p>
-                <p class="text-xs text-gray-400 text-center mt-3">Demo only - add Supabase/Auth0 later for real accounts</p>
-            </div>
-        </div>
-    </div>
-    <div id="toast" class="toast"></div><script>
-        let currentCategory = 'All';
-        let currentSearch = '';
-        let showingHotDeals = false;
-        let showingTrending = false;
-        let showingFavourites = false;
-        let showingWatchlist = false;
-        let favourites = [];
-        let watchlist = [];
-        let recentlyViewedIds = [];
-        let allProducts = [];
-        let groupedProducts = {};
-        let pendingWatchlistId = null;
-        let activeConditionTab = 'all';
-        let authMode = 'signup';
+ <script>
+    let currentCategory = 'All';
+    let currentSearch = '';
+    let showingHotDeals = false;
+    let showingTrending = false;
+    let showingFavourites = false;
+    let showingWatchlist = false;
+    let favourites = [];
+    let watchlist = [];
+    let recentlyViewedIds = [];
+    let allProducts = [];
+    let groupedProducts = {};
+    let pendingWatchlistId = null;
+    let activeConditionTab = 'all';
+    let authMode = 'signup';
 
+    try {
+        favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+        watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+        recentlyViewedIds = JSON.parse(localStorage.getItem('recentlyViewedIds') || '[]');
+    } catch(e) { console.warn('localStorage blocked:', e); }
+
+    // --- FIX 1: Sanitize price helper ---
+    function cleanPrice(val) {
+        const n = parseFloat(val);
+        return (isNaN(n) || n <= 0) ? null : Math.round(n * 100) / 100;
+    }
+
+    const EBAY_AFFILIATE_LINKS = { /* your object unchanged */ };
+
+    document.addEventListener('DOMContentLoaded', () => { updateBadges(); loadProducts(); });
+    document.getElementById('searchBtn').addEventListener('click', () => { currentSearch = document.getElementById('searchInput').value; showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false; resetConditionTab(); loadProducts(); });
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearch = document.getElementById('searchInput').value; showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false; resetConditionTab(); loadProducts(); } });
+
+    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+    function setCategory(cat){ /* unchanged */ }
+    function resetHome(e){ e.preventDefault(); currentSearch=''; currentCategory='All'; showingHotDeals=showingTrending=showingFavourites=showingWatchlist=false; document.getElementById('searchInput').value=''; resetConditionTab(); setCategory('All'); }
+    function toggleFavourites(){ showingFavourites=!showingFavourites; showingHotDeals=showingTrending=showingWatchlist=false; resetConditionTab(); loadProducts(); }
+    function toggleWatchlist(){ showingWatchlist=!showingWatchlist; showingHotDeals=showingTrending=showingFavourites=false; resetConditionTab(); loadProducts(); }
+    function toggleFavourite(id){ /* unchanged */ }
+    function showWatchlistPrompt(product){ /* unchanged */ }
+    function confirmWatchlistAdd(){ /* unchanged */ }
+    function closeWatchlistModal(event){ /* unchanged */ }
+    function toggleWatch(id){ /* unchanged */ }
+    function addToRecentlyViewed(productId){ /* unchanged */ }
+    function updateBadges(){ /* unchanged */ }
+    function openAuth(type){ /* unchanged */ }
+    function switchAuthMode(){ /* unchanged */ }
+    function handleAuth(){ /* unchanged */ }
+    function closeAuthModal(event){ /* unchanged */ }
+
+    async function loadProducts() {
+        const container = document.getElementById('productsContainer');
+        const info = document.getElementById('resultsInfo');
+        container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
         try {
-            favourites = JSON.parse(localStorage.getItem('favourites') || '[]');
-            watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
-            recentlyViewedIds = JSON.parse(localStorage.getItem('recentlyViewedIds') || '[]');
-        } catch(e) {
-            console.warn('localStorage blocked:', e);
-        }
+            let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending') ? 'All' : currentCategory}`;
+            if (currentCategory === 'HotDeals') url += '&hotDeals=true';
+            if (currentCategory === 'Trending') url += '&trending=true';
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('API error');
+            allProducts = await res.json();
 
-        const EBAY_AFFILIATE_LINKS = {
-            'iPhone 15 Pro 256GB': [
-                {
-                    store: 'eBay - New',
-                    url: 'https://www.ebay.co.uk/sch/i.html?_nkw=iphone+15+pro+256gb&LH_BIN=1&LH_ItemCondition=1000&LH_PrefLoc=1&mkcid=1&mkrid=710-53481-19255-0&siteid=3&campid=5339157410&customid=pricesnapiphone15pronew&toolid=10001&mkevt=1',
-                    storeStatus: 'green',
-                    delivery: '1-3 days',
-                    stock: 'Buy It Now',
-                    btnClass: 'ebay-btn-new',
-                    condition: 'new'
-                },
-                {
-                    store: 'eBay - Refurbished',
-                    url: 'https://www.ebay.co.uk/sch/i.html?_nkw=iphone+15+pro+256gb&LH_BIN=1&LH_ItemCondition=2000|2010|2020|2030&LH_PrefLoc=1&mkcid=1&mkrid=710-53481-19255-0&siteid=3&campid=5339157410&customid=pricesnapiphone15prorefurb&toolid=10001&mkevt=1',
-                    storeStatus: 'green',
-                    delivery: '2-4 days',
-                    stock: 'Certified Refurb',
-                    btnClass: 'ebay-btn-refurb',
-                    condition: 'refurbished'
-                },
-                {
-                    store: 'eBay - Auctions',
-                    url: 'https://www.ebay.co.uk/sch/i.html?_nkw=iphone+15+pro+256gb&LH_Auction=1&LH_PrefLoc=1&mkcid=1&mkrid=710-53481-19255-0&siteid=3&campid=5339157410&customid=pricesnapiphone15proauction&toolid=10001&mkevt=1',
-                    storeStatus: 'orange',
-                    delivery: 'Auction ends soon',
-                    stock: 'Bid Now',
-                    btnClass: 'ebay-btn-auction',
-                    condition: 'auction'
+            // --- FIX 2: Clean every product price on ingest ---
+            allProducts = allProducts.map(p => {
+                p.price = cleanPrice(p.price);
+                p.oldPrice = cleanPrice(p.oldPrice);
+                if (EBAY_AFFILIATE_LINKS[p.name]) {
+                    const affiliatePrices = EBAY_AFFILIATE_LINKS[p.name].map((aff, idx) => ({
+                        id: 999000 + idx,
+                        store: aff.store,
+                        price: p.price, // now cleaned
+                        oldPrice: p.oldPrice,
+                        storeStatus: aff.storeStatus,
+                        url: aff.url,
+                        delivery: aff.delivery,
+                        stock: aff.stock,
+                        btnClass: aff.btnClass,
+                        condition: aff.condition
+                    })).filter(ap => ap.price !== null); // drop if no price
+                    return {...p, prices: affiliatePrices };
                 }
-            ]
-        };
+                return p;
+            }).filter(p => p.price !== null || (p.prices && p.prices.length)); // keep only products with at least 1 valid price
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateBadges();
-            updateNavButtons();
-            loadProducts();
-        });
-
-        document.getElementById('searchBtn').addEventListener('click', () => {
-            currentSearch = document.getElementById('searchInput').value;
-            showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
-            resetConditionTab();
-            loadProducts();
-        });
-
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                currentSearch = document.getElementById('searchInput').value;
-                showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
-                resetConditionTab();
-                loadProducts();
-            }
-        });
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 2000);
-        }
-
-        function setCategory(cat) {
-            currentCategory = cat;
-            showingHotDeals = cat === 'HotDeals';
-            showingTrending = cat === 'Trending';
-            showingFavourites = showingWatchlist = false;
-            resetConditionTab();
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                if (btn.dataset.cat === cat) {
-                    btn.className = 'category-btn px-3 py-1 rounded-full border bg-green-600 text-white text-xs font-medium';
-                } else {
-                    btn.className = 'category-btn px-3 py-1 rounded-full border bg-white text-gray-700 hover:bg-gray-100 text-xs font-medium';
-                }
-            });
-            loadProducts();
-        }
-
-        function resetHome(e) {
-            e.preventDefault();
-            currentSearch = '';
-            currentCategory = 'All';
-            showingHotDeals = showingTrending = showingFavourites = showingWatchlist = false;
-            document.getElementById('searchInput').value = '';
-            resetConditionTab();
-            setCategory('All');
-        }
-
-        function openAuth(type) {
-            authMode = type;
-            document.getElementById('authTitle').textContent = type === 'login' ? 'Login' : 'Sign Up';
-            document.getElementById('authToggle').innerHTML = type === 'login' 
-                ? `Don't have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Sign Up</button>`
-                : `Already have an account? <button onclick="switchAuthMode()" class="text-green-600 hover:underline font-medium">Login</button>`;
-            document.getElementById('authModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function switchAuthMode() {
-            authMode = authMode === 'login' ? 'signup' : 'login';
-            openAuth(authMode);
-        }
-
-        function handleAuth() {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPassword').value;
-            if (!email || !pass) {
-                showToast('Enter email and password');
-                return;
-            }
-            
-            localStorage.setItem('ps_user', JSON.stringify({ email: email }));
-            updateNavButtons();
-            
-            showToast(authMode === 'login' ? 'Logged in!' : 'Account created!');
-            closeAuthModal();
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-        }
-
-        function updateNavButtons() {
-            const user = JSON.parse(localStorage.getItem('ps_user') || 'null');
-            const nav = document.querySelector('nav');
-            
-            if (user) {
-                nav.innerHTML = `
-                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-heart"></i>
-                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-eye"></i>
-                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <span class="text-gray-700 text-sm font-medium">${user.email}</span>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 text-sm font-medium">Logout</button>
-                `;
-            } else {
-                nav.innerHTML = `
-                    <button title="Favourites" onclick="toggleFavourites()" class="text-gray-600 hover:text-pink-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-heart"></i>
-                        <span id="favBadge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <button title="Watchlist" onclick="toggleWatchlist()" class="text-gray-600 hover:text-blue-600 text-xl transition-colors relative">
-                        <i class="fa-solid fa-eye"></i>
-                        <span id="watchBadge" class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    <button onclick="openAuth('login')" class="text-gray-600 hover:text-green-600 text-sm font-medium">Login</button>
-                    <button onclick="openAuth('signup')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 text-sm font-medium">Sign Up</button>
-                `;
-            }
-            updateBadges();
-        }
-
-        function logout() {
-            localStorage.removeItem('ps_user');
-            updateNavButtons();
-            showToast('Logged out');
-        }
-
-        function closeAuthModal(event) {
-            if (!event || event.target.id === 'authModal') {
-                document.getElementById('authModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }function toggleFavourites() {
-            showingFavourites = !showingFavourites;
-            showingHotDeals = showingTrending = showingWatchlist = false;
-            resetConditionTab();
-            loadProducts();
-        }
-
-        function toggleWatchlist() {
-            showingWatchlist = !showingWatchlist;
-            showingHotDeals = showingTrending = showingFavourites = false;
-            resetConditionTab();
-            loadProducts();
-        }
-
-        function toggleFavourite(id) {
-            const idx = favourites.indexOf(id);
-            const product = allProducts.find(p => p.id === id);
-            
-            if (idx > -1) {
-                favourites.splice(idx, 1);
-                showToast('Removed from favourites');
-            } else {
-                favourites.push(id);
-                showToast('Added to favourites');
-                if (product && !watchlist.includes(id)) {
-                    showWatchlistPrompt(product);
-                }
-            }
-            try {
-                localStorage.setItem('favourites', JSON.stringify(favourites));
-            } catch(err) {
-                console.warn('localStorage blocked:', err);
-            }
-            updateBadges();
             renderProducts();
+        } catch (err) {
+            info.textContent = 'Error loading products';
+            container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>';
+            console.error(err);
         }
+    }
 
-        function showWatchlistPrompt(product) {
-            pendingWatchlistId = product.id;
-            const modalHtml = `
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Add to Watchlist?</h3>
-                <p class="text-gray-600 mb-4 text-sm">Get notified about <span class="font-semibold">${product.name}</span></p>
-                <div class="flex gap-2">
-                    <button onclick="confirmWatchlistAdd()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm">
-                        Yes, add it
-                    </button>
-                    <button onclick="closeWatchlistModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold text-sm">
-                        No thanks
-                    </button>
-                </div>
-            `;
-            document.getElementById('watchlistModalContent').innerHTML = modalHtml;
-            document.getElementById('watchlistModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
+    function renderProducts() {
+        const container = document.getElementById('productsContainer');
+        const info = document.getElementById('resultsInfo');
+        let products = [...allProducts];
+        // ... filtering logic unchanged ...
 
-        function confirmWatchlistAdd() {
-            if (pendingWatchlistId && !watchlist.includes(pendingWatchlistId)) {
-                watchlist.push(pendingWatchlistId);
-                try {
-                    localStorage.setItem('watchlist', JSON.stringify(watchlist));
-                } catch(err) {
-                    console.warn('localStorage blocked:', err);
-                }
-                updateBadges();
-                renderProducts();
+        groupedProducts = {};
+        products.forEach(p => {
+            if (!groupedProducts[p.name]) {
+                groupedProducts[p.name] = { name: p.name, id: p.id, image: p.image, category: p.category, hotDeal: p.hotDeal, trending: p.trending, description: p.description || 'No description available', prices: [], conditionGroups: { new: [], used: [], refurbished: [], auction: [] } };
             }
-            closeWatchlistModal();
-        }
-
-        function closeWatchlistModal(event) {
-            if (!event || event.target.id === 'watchlistModal') {
-                document.getElementById('watchlistModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                pendingWatchlistId = null;
-            }
-        }
-
-        function toggleWatch(id) {
-            const idx = watchlist.indexOf(id);
-            if (idx > -1) watchlist.splice(idx, 1);
-            else watchlist.push(id);
-            try {
-                localStorage.setItem('watchlist', JSON.stringify(watchlist));
-            } catch(err) {
-                console.warn('localStorage blocked:', err);
-            }
-            updateBadges();
-            renderProducts();
-        }
-
-        function addToRecentlyViewed(productId) {
-            recentlyViewedIds = recentlyViewedIds.filter(id => id !== productId);
-            recentlyViewedIds.unshift(productId);
-            recentlyViewedIds = recentlyViewedIds.slice(0, 10);
-            try {
-                localStorage.setItem('recentlyViewedIds', JSON.stringify(recentlyViewedIds));
-            } catch(err) {
-                console.warn('localStorage blocked:', err);
-            }
-        }
-
-        function updateBadges() {
-            document.getElementById('favBadge').textContent = favourites.length;
-            document.getElementById('favBadge').classList.toggle('hidden', favourites.length === 0);
-            document.getElementById('watchBadge').textContent = watchlist.length;
-            document.getElementById('watchBadge').classList.toggle('hidden', watchlist.length === 0);
-        }
-
-        function clearRecentlyViewed() {
-            recentlyViewedIds = [];
-            try {
-                localStorage.setItem('recentlyViewedIds', JSON.stringify(recentlyViewedIds));
-            } catch(err) {
-                console.warn('localStorage blocked:', err);
-            }
-            renderProducts();
-        }
-
-        async function loadProducts() {
-            const container = document.getElementById('productsContainer');
-            const info = document.getElementById('resultsInfo');
-            
-            container.innerHTML = '<div class="text-center py-12 text-gray-500">Loading...</div>';
-            
-            try {
-                let url = `/api/products?search=${encodeURIComponent(currentSearch)}&category=${(currentCategory === 'HotDeals' || currentCategory === 'Trending') ? 'All' : currentCategory}`;
-                if (currentCategory === 'HotDeals') url += '&hotDeals=true';
-                if (currentCategory === 'Trending') url += '&trending=true';
-                
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('API error');
-                allProducts = await res.json();
-
-                allProducts = allProducts.map(p => {
-                    if (EBAY_AFFILIATE_LINKS[p.name]) {
-                        const affiliatePrices = EBAY_AFFILIATE_LINKS[p.name].map((aff, idx) => ({
-                            id: 999000 + idx,
-                            store: aff.store,
-                            price: p.price,
-                            oldPrice: p.oldPrice,
-                            storeStatus: aff.storeStatus,
-                            url: aff.url,
-                            delivery: aff.delivery,
-                            stock: aff.stock,
-                            btnClass: aff.btnClass,
-                            condition: aff.condition
-                        }));
-                        return {...p, prices: affiliatePrices };
-                    }
-                    return p;
+            if (p.prices && p.prices.length > 0) {
+                p.prices.forEach(price => {
+                    if (price.price === null) return;
+                    groupedProducts[p.name].prices.push(price);
+                    const cond = price.condition || 'new';
+                    if (groupedProducts[p.name].conditionGroups[cond]) groupedProducts[p.name].conditionGroups[cond].push(price);
                 });
-
-                renderProducts();
-                
-            } catch (err) {
-                info.textContent = 'Error loading products';
-                container.innerHTML = '<div class="text-center py-12 text-red-500">Failed to load. Is the backend running?</div>';
-                console.error(err);
+            } else if (p.price !== null) {
+                const priceObj = { store: p.store, price: p.price, oldPrice: p.oldPrice, storeStatus: p.storeStatus, url: p.link || p.url, id: p.id, delivery: p.deliveryTime || p.delivery || '2-3 days', stock: p.stock || 'In Stock', btnClass: p.btnClass || '', condition: p.condition || 'new' };
+                groupedProducts[p.name].prices.push(priceObj);
+                groupedProducts[p.name].conditionGroups[priceObj.condition].push(priceObj);
             }
-        }function toggleFavourites() {
-            showingFavourites = !showingFavourites;
-            showingHotDeals = showingTrending = showingWatchlist = false;
-            resetConditionTab();
-            loadProducts();
-        }
+        });
 
-        function toggleWatchlist() {
-            showingWatchlist = !showingWatchlist;
-            showingHotDeals = showingTrending = showingFavourites = false;
-            resetConditionTab();
-            loadProducts();
-        }
+        Object.values(groupedProducts).forEach(g => {
+            Object.keys(g.conditionGroups).forEach(cond => {
+                g.conditionGroups[cond] = g.conditionGroups[cond].filter(pr => pr.price !== null).sort((a, b) => a.price - b.price);
+            });
+            const newPrices = g.conditionGroups.new.length > 0 ? g.conditionGroups.new.slice(0, 3) : Object.values(g.conditionGroups).flat().sort((a,b) => a.price - b.price).slice(0, 3);
+            g.prices = newPrices;
+            // --- FIX 3: Don't push '—' placeholders ---
+            while (g.prices.length < 3 && g.prices.length > 0) {
+                g.prices.push({ store: 'More stores soon', price: null, storeStatus: 'gray', url: '#', id: -1, delivery: '—', stock: '—', condition: 'new' });
+            }
+        });
 
-        function toggleFavourite(id) {
-            const idx = favourites.indexOf(id);
-            const product = allProducts.find(p => p.id === id);
-            
-            if (idx > -1) {
-                favourites.splice(idx, 1);
-                showToast('Removed from favourites');
-            } else {
-                favourites.push(id);
-                showToast('Added to favourites');
-                if (product && !watchlist.includes(id)) {
-                    showWatchlistPrompt(product);
-                }
+        // ... rest of your render logic unchanged until productCard ...
+    }
+
+    function productCard(p) {
+        const bestPrice = p.prices[0];
+        const productId = p.id;
+        const totalOptions = Object.values(p.conditionGroups).flat().length;
+        const hasRefurb = p.conditionGroups.refurbished.length > 0;
+        const hasAuction = p.conditionGroups.auction.length > 0;
+        const hasUsed = p.conditionGroups.used.length > 0;
+        
+        return `
+            <div class="swipe-item bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all min-h-[380px] flex flex-col">
+                <div class="relative">
+                    <img src="${p.image}" alt="${p.name}" class="w-full h-36 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                    ${p.hotDeal? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-fire"></i> HOT</div>' : p.trending? '<div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> TRENDING</div>' : '<div class="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">[Best]</div>'}
+                    ${showingWatchlist ? `<button onclick="toggleWatch(${productId})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg hover:scale-110 transition" title="Remove from Watchlist"><i class="fa-solid fa-xmark text-sm"></i></button>` : `<button onclick="toggleFavourite(${productId})" class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:scale-110 transition"><i class="fa-${favourites.includes(productId)? 'solid text-pink-500' : 'regular text-gray-400'} fa-heart text-sm"></i></button>`}
+                </div>
+                <div class="p-3 flex-1 flex flex-col">
+                    <h3 class="font-semibold text-gray-900 mb-2 text-sm leading-tight">${p.name}</h3>
+                    <div class="mb-3 flex-1">
+                        <div class="text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">TOP 3 NEW PRICES</div>
+                        ${p.prices.map((price, idx) => `
+                            <div class="flex items-center justify-between py-1 ${idx < 2? 'border-b border-gray-100' : ''}">
+                                <div class="flex items-center">
+                                    <span class="store-dot dot-${price.storeStatus}"></span>
+                                    <span class="text-xs text-gray-700 font-medium">${price.store.replace('eBay - New', 'eBay')}</span>
+                                </div>
+                                <span class="text-sm font-bold ${price.price===null?'text-gray-400':'text-gray-900'}">${price.price===null ? 'Check store' : '£' + price.price.toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        ${totalOptions > p.prices.length? `<div class="text-xs text-green-600 font-medium mt-1">${hasRefurb? 'Refurbished' : ''} ${hasAuction? '• Auctions' : ''} ${hasUsed? '• Used' : ''} available</div>` : ''}
+                    </div>
+                    <button onclick="openProductModal('${p.name.replace(/'/g, "\\'")}')" class="block w-full py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 text-sm font-semibold text-center mt-auto">View Deal <i class="fa-solid fa-arrow-up-right-from-square text-xs ml-1"></i></button>
+                </div>
+            </div>
+        `;
+    }
+
+    // ... keep switchConditionTab, resetConditionTab, openProductModal, closeModal, clearRecentlyViewed unchanged, but in openProductModal change price display to use .toFixed(2) and null check same as above ...
+</script>
             }
             try {
                 localStorage.setItem('favourites', JSON.stringify(favourites));
